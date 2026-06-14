@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Useful Linux Commands for Daily Deployment Work</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #0f1420;
+    --surface2: #141926;
+    --border: #1e2535;
+    --accent: #f0c040;
+    --green: #3ddc84;
+    --cyan: #4fc3f7;
+    --purple: #b39ddb;
+    --red: #ef5350;
+    --orange: #ffa726;
+    --text: #e8eaf0;
+    --muted: #7986a3;
+    --code-bg: #060910;
+    --hover: #161c2e;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  header h1 {
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  header h1 .hl { color: var(--accent); }
+  header p {
+    margin-top: 0.6rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.1rem;
+    max-width: 1260px;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .card-icon { font-size: 1rem; flex-shrink: 0; }
+  .card-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .card-body {
+    padding: 0.9rem 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  /* COMMAND GROUPS */
+  .cmd-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .cmd-label {
+    font-size: 0.73rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--green);
+    overflow-x: auto;
+    position: relative;
+  }
+  pre .copy-btn {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+    background: var(--border);
+    border: none;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  pre:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: var(--cyan); color: #000; }
+  .copy-btn.copied { background: var(--green); color: #000; opacity: 1; }
+
+  .note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 0.2rem;
+  }
+  .note.tip {
+    color: var(--orange);
+    font-style: normal;
+  }
+  .note::before { content: "» "; }
+
+  /* NUMBERED LIST COMMANDS */
+  .every-deploy {
+    grid-column: 1 / -1;
+  }
+  .numbered-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1rem;
+  }
+  .num-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .num-item .n {
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 1.2rem;
+  }
+  .num-item pre {
+    flex: 1;
+    margin: 0;
+    font-size: 0.68rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  /* CHECKLIST */
+  .wide-section {
+    max-width: 1260px;
+    margin: 0 auto 1.1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+  }
+  @media (max-width: 700px) {
+    .wide-section { grid-template-columns: 1fr; }
+    .numbered-grid { grid-template-columns: 1fr; }
+    .every-deploy { grid-column: auto; }
+  }
+
+  .checklist-card {
+    background: var(--surface);
+    border: 1px solid #2a3a1a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .checklist-card .card-header { border-bottom-color: #2a3a1a; }
+  .checklist-body {
+    padding: 0.9rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem 1rem;
+  }
+  @media (max-width: 500px) { .checklist-body { grid-template-columns: 1fr; } }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .check-item .tick { color: var(--green); font-size: 0.8rem; margin-top: 0.05rem; }
+
+  .tips-card {
+    background: var(--surface);
+    border: 1px solid #2a2010;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tips-card .card-header { border-bottom-color: #2a2010; }
+  .tips-body {
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .tip-item .dot { color: var(--accent); font-size: 1rem; line-height: 1; margin-top: 0.1rem; }
+
+  /* QUOTE BANNER */
+  .quote-banner {
+    max-width: 1260px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #0f1420 0%, #141926 100%);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+  }
+  .quote-banner p {
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .quote-banner p strong {
+    color: var(--accent);
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+  }
+
+  /* INCIDENT FLOW */
+  .flow {
+    max-width: 1260px;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 0 0.5rem;
+  }
+  .flow-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+  .flow-step .icon { font-size: 1.1rem; }
+  .flow-step .label { font-size: 0.7rem; font-weight: 700; color: var(--accent); margin-top: 0.2rem; }
+  .flow-step .sub { font-size: 0.62rem; color: var(--muted); margin-top: 0.1rem; }
+  .flow-arrow {
+    color: var(--muted);
+    font-size: 1.2rem;
+    padding: 0 0.3rem;
+    flex-shrink: 0;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 1rem;
+  }
+  footer span { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// linux · devops · sre · automation</div>
+  <h1>Useful Linux Commands<br>for Daily <span class="hl">Deployment</span> Work</h1>
+  <p>Real commands. Real impact. Used every day in production.</p>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<!-- Every Deployment Commands -->
+<div style="max-width:1260px;margin:0 auto 1.1rem;">
+  <div class="card every-deploy">
+    <div class="card-header">
+      <span class="card-icon">🔥</span>
+      <span class="card-title">Commands I Use in Every Deployment</span>
+    </div>
+    <div class="card-body">
+      <div class="numbered-grid" id="every-deploy-grid"></div>
+      <p class="note tip">Run these. Save time. Prevent incidents.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Checklist + Tips -->
+<div class="wide-section">
+  <div class="checklist-card">
+    <div class="card-header">
+      <span class="card-icon">✅</span>
+      <span class="card-title" style="color:#3ddc84;">Production Deployment Checklist</span>
+    </div>
+    <div class="checklist-body" id="checklist"></div>
+  </div>
+  <div class="tips-card">
+    <div class="card-header">
+      <span class="card-icon">💡</span>
+      <span class="card-title" style="color:var(--accent);">Pro Tips</span>
+    </div>
+    <div class="tips-body" id="tips"></div>
+  </div>
+</div>
+
+<!-- Quote Banner -->
+<div class="quote-banner">
+  <p>"You don't need complex tools to solve complex problems.<br>
+  <strong>You need the right commands and the right mindset.</strong>"</p>
+</div>
+
+<!-- Incident Flow -->
+<div class="flow" id="flow"></div>
+
+<footer>
+  <span>#Linux</span> &nbsp;·&nbsp; <span>#DevOps</span> &nbsp;·&nbsp; <span>#Deployment</span> &nbsp;·&nbsp; <span>#SRE</span> &nbsp;·&nbsp; <span>#Automation</span>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const sections = [
+  {
+    icon: "✔️",
+    title: "Deployment Verification",
+    commands: [
+      { label: "Check Application Status", cmd: "systemctl status <service-name>\n# Example: systemctl status nginx" },
+      { label: "Restart Application",       cmd: "systemctl restart <service-name>\n# Example: systemctl restart tomcat" },
+      { label: "Reload Configuration",      cmd: "systemctl reload nginx" },
+    ],
+    note: "Useful after updating configs (Nginx/Apache)"
+  },
+  {
+    icon: "📋",
+    title: "Log Monitoring",
+    commands: [
+      { label: "Live Logs",                    cmd: "tail -f /var/log/application.log" },
+      { label: "Systemd Service Logs (Live)",  cmd: "journalctl -u nginx -f" },
+      { label: "Last 100 Log Lines",           cmd: "journalctl -u nginx -n 100" },
+    ],
+    note: "Logs tell the story. Always check first."
+  },
+  {
+    icon: "🌐",
+    title: "Network Validation",
+    commands: [
+      { label: "Check Listening Ports",       cmd: "ss -tulnp" },
+      { label: "Verify Application Response", cmd: "curl -I http://localhost:8080\n# or\ncurl -v http://localhost:8080" },
+      { label: "Check Connectivity",          cmd: "ping hostname\nnc -zv hostname 443" },
+    ],
+    note: "Network issues are common. Validate layer by layer."
+  },
+  {
+    icon: "⚙️",
+    title: "Process Management",
+    commands: [
+      { label: "Top CPU Consumers",    cmd: "ps aux --sort=-%cpu | head" },
+      { label: "Top Memory Consumers", cmd: "ps aux --sort=-%mem | head" },
+      { label: "Find Process ID",      cmd: "pgrep java" },
+      { label: "Kill Stuck Process",   cmd: "kill -9 PID" },
+    ],
+    note: "Identify the culprit before you kill."
+  },
+  {
+    icon: "💾",
+    title: "Disk Space Commands",
+    commands: [
+      { label: "Check Filesystem Usage",        cmd: "df -h" },
+      { label: "Find Large Directories",        cmd: "du -sh * | sort -h" },
+      { label: "Find Large Files",              cmd: "find / -size +500M" },
+      { label: "Deleted Files Still Using Space", cmd: "lsof +L1" },
+    ],
+    note: "lsof +L1 is a lifesaver in production!"
+  },
+  {
+    icon: "📦",
+    title: "Deployment Commands",
+    commands: [
+      { label: "Extract Build Package", cmd: "tar -xvf application.tar.gz" },
+      { label: "Copy Build",            cmd: "cp application.jar /deployments/" },
+      { label: "Sync Release (Preferred)", cmd: "rsync -avz release/ server:/app/" },
+    ],
+    note: "Use rsync over scp for speed & safety."
+  },
+  {
+    icon: "🔍",
+    title: "Search Commands",
+    commands: [
+      { label: "Search Error in Logs",    cmd: "grep -i error app.log" },
+      { label: "Search in Multiple Logs", cmd: 'grep -r "Exception" /logs/' },
+      { label: "Count Occurrences",       cmd: "grep ERROR app.log | wc -l" },
+    ],
+    note: "grep is your best friend."
+  },
+  {
+    icon: "👤",
+    title: "User & Permission Commands",
+    commands: [
+      { label: "Check File Permissions", cmd: "ls -lah" },
+      { label: "Change Ownership",       cmd: "chown appuser:appgroup app.jar" },
+      { label: "Change Permissions",     cmd: "chmod 755 deploy.sh" },
+    ],
+    note: "Most deployment issues are permission related."
+  },
+  {
+    icon: "☁️",
+    title: "AWS / Linux System Commands",
+    commands: [
+      { label: "Check Instance Resources", cmd: "free -h\nuptime\ntop" },
+      { label: "Check Mounted Volumes",    cmd: "lsblk" },
+      { label: "Memory & System Stats",    cmd: "vmstat 1 5" },
+    ],
+    note: "Know your system. Monitor your resources."
+  }
+];
+
+const everyDeployCommands = [
+  "systemctl status app",
+  "journalctl -u app -f",
+  "tail -f application.log",
+  "curl localhost:8080",
+  "ss -tulnp",
+  "df -h",
+  "free -h",
+  "ps aux --sort=-%cpu | head",
+  "ps aux --sort=-%mem | head",
+  "find / -size +500M",
+  "lsof +L1",
+];
+
+const checklist = [
+  "Check service started successfully",
+  "Monitor logs for 5–10 minutes",
+  "Verify application endpoint (curl)",
+  "Check CPU and memory",
+  "Verify disk space",
+  "Check open ports",
+  "Confirm no errors in logs",
+  "Validate health-check endpoint",
+  "Verify database connectivity",
+  "Inform stakeholders after validation",
+];
+
+const tips = [
+  "Always check logs before restarting anything.",
+  "One change at a time. Validate after each change.",
+  "Document issues and solutions.",
+  "Automate repetitive checks with scripts.",
+  "Calm mind + right commands = fast resolution.",
+];
+
+const flow = [
+  { icon: "👁️", label: "Observe",      sub: "Understand the issue" },
+  { icon: "🔎", label: "Investigate",  sub: "Collect evidence" },
+  { icon: "🎯", label: "Isolate",      sub: "Find the root cause" },
+  { icon: "🔧", label: "Fix",          sub: "Apply the right fix" },
+  { icon: "✅", label: "Verify",       sub: "Confirm & Monitor" },
+];
+
+// ── Render helpers ─────────────────────────────────────────────────────────────
+function esc(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function makeCode(cmd, extraClass = "") {
+  const id = Math.random().toString(36).slice(2);
+  return `<pre class="${extraClass}" data-cmd="${esc(cmd)}"><button class="copy-btn" onclick="copyPre(this)">copy</button>${esc(cmd)}</pre>`;
+}
+
+function copyPre(btn) {
+  const text = btn.closest('pre').dataset.cmd;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "copied!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "copy"; btn.classList.remove("copied"); }, 1800);
+  });
+}
+window.copyPre = copyPre;
+
+// ── Build main grid ────────────────────────────────────────────────────────────
+const grid = document.getElementById('grid');
+sections.forEach(sec => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const cmds = sec.commands.map(c => `
+    <div class="cmd-group">
+      <div class="cmd-label">${esc(c.label)}</div>
+      ${makeCode(c.cmd)}
+    </div>`).join('');
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="card-icon">${sec.icon}</span>
+      <span class="card-title">${esc(sec.title)}</span>
+    </div>
+    <div class="card-body">
+      ${cmds}
+      ${sec.note ? `<p class="note">${esc(sec.note)}</p>` : ''}
+    </div>`;
+  grid.appendChild(card);
+});
+
+// ── Every deployment commands ─────────────────────────────────────────────────
+const edg = document.getElementById('every-deploy-grid');
+everyDeployCommands.forEach((cmd, i) => {
+  const div = document.createElement('div');
+  div.className = 'num-item';
+  div.innerHTML = `<span class="n">${String(i+1).padStart(2,'0')}.</span>${makeCode(cmd)}`;
+  edg.appendChild(div);
+});
+
+// ── Checklist ────────────────────────────────────────────────────────────────
+const cl = document.getElementById('checklist');
+checklist.forEach(item => {
+  const div = document.createElement('div');
+  div.className = 'check-item';
+  div.innerHTML = `<span class="tick">✔</span><span>${esc(item)}</span>`;
+  cl.appendChild(div);
+});
+
+// ── Tips ─────────────────────────────────────────────────────────────────────
+const tb = document.getElementById('tips');
+tips.forEach(tip => {
+  const div = document.createElement('div');
+  div.className = 'tip-item';
+  div.innerHTML = `<span class="dot">●</span><span>${esc(tip)}</span>`;
+  tb.appendChild(div);
+});
+
+// ── Incident Flow ─────────────────────────────────────────────────────────────
+const fl = document.getElementById('flow');
+flow.forEach((step, i) => {
+  if (i > 0) {
+    const arr = document.createElement('div');
+    arr.className = 'flow-arrow';
+    arr.textContent = '→';
+    fl.appendChild(arr);
+  }
+  const div = document.createElement('div');
+  div.className = 'flow-step';
+  div.innerHTML = `<div class="icon">${step.icon}</div><div class="label">${esc(step.label)}</div><div class="sub">${esc(step.sub)}</div>`;
+  fl.appendChild(div);
+});
+</script>
+</body>
+</html>
