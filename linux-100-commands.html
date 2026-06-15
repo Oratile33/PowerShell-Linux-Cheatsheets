@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100+ Linux Commands — Cheat Sheet</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#0b0d12;
+  --s1:#10131a;
+  --s2:#13161f;
+  --border:#1d2130;
+  --border2:#252a3a;
+  --text:#dde3f0;
+  --muted:#5a6282;
+  --dim:#3a4060;
+
+  --c1:#4fc3f7;   /* file/dir — cyan */
+  --c2:#81c995;   /* viewing — green */
+  --c3:#e06c75;   /* text proc — rose */
+  --c4:#c792ea;   /* search — purple */
+  --c5:#f0a500;   /* permissions — amber */
+  --c6:#56b6c2;   /* user mgmt — teal */
+  --c7:#e5c07b;   /* process — gold */
+  --c8:#61afef;   /* sysinfo — blue */
+  --c9:#ff8c69;   /* disk — salmon */
+  --c10:#98c379;  /* networking — lime */
+  --c11:#d19a66;  /* package — orange */
+  --c12:#c678dd;  /* service — violet */
+  --c13:#e06c75;  /* archive — red */
+  --c14:#56b6c2;  /* cron — teal */
+  --c15:#e5c07b;  /* shell — gold */
+  --c16:#98c379;  /* log — lime */
+  --c17:#4fc3f7;  /* interview — cyan */
+}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:2rem 1rem 5rem;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+header{text-align:center;margin-bottom:2.5rem;position:relative;}
+.tux{font-size:2.8rem;line-height:1;margin-bottom:.5rem;}
+header h1{
+  font-size:clamp(1.6rem,4vw,2.5rem);
+  font-weight:700;
+  letter-spacing:-.02em;
+  line-height:1.15;
+}
+header h1 .num{color:var(--c1);}
+header .sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+  color:var(--muted);
+  margin-top:.5rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.syntax-box{
+  display:inline-flex;
+  gap:1.5rem;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:.5rem 1.25rem;
+  margin-top:1rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  color:var(--muted);
+}
+.syntax-box span{color:var(--text);}
+.syntax-box em{color:var(--c5);font-style:normal;}
+
+/* ── SEARCH ──────────────────────────────────────── */
+.search-wrap{max-width:500px;margin:1.2rem auto 0;position:relative;}
+.search-wrap input{
+  width:100%;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:.6rem 1rem .6rem 2.5rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.82rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:var(--c1);}
+.search-wrap .ico{position:absolute;left:.8rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none;}
+
+/* ── NAV PILLS ───────────────────────────────────── */
+nav{
+  max-width:1300px;
+  margin:.5rem auto 1.5rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+  justify-content:center;
+}
+nav a{
+  font-size:.68rem;
+  font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  text-decoration:none;
+  padding:.25rem .65rem;
+  border-radius:20px;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  transition:all .15s;
+  white-space:nowrap;
+}
+nav a:hover{color:#fff;border-color:currentColor;}
+
+/* ── SECTION GRID ────────────────────────────────── */
+.sections{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(390px,1fr));
+  gap:1rem;
+  max-width:1300px;
+  margin:0 auto;
+}
+
+.sec{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.sec-head{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.65rem 1rem;
+  border-bottom:1px solid var(--border);
+}
+.sec-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;
+  font-weight:700;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:.15rem .4rem;
+  color:var(--muted);
+  flex-shrink:0;
+}
+.sec-title{
+  font-size:.78rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.sec-icon{font-size:1rem;flex-shrink:0;margin-left:auto;}
+
+/* ── TABLE ───────────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;font-size:.72rem;}
+.tbl thead tr{background:var(--s2);}
+.tbl th{
+  padding:.35rem .75rem;
+  text-align:left;
+  font-size:.62rem;
+  font-weight:700;
+  color:var(--muted);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:.3rem .75rem;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  line-height:1.4;
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.025);}
+
+.cmd{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;
+  white-space:nowrap;
+  color:inherit;
+}
+.ex{
+  font-family:'JetBrains Mono',monospace;
+  color:var(--muted);
+  font-size:.67rem;
+  white-space:nowrap;
+}
+.desc{color:#9aa3bc;}
+
+/* ── BOTTOM PANELS ───────────────────────────────── */
+.bottom{
+  max-width:1300px;
+  margin:1rem auto 0;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:1rem;
+}
+@media(max-width:800px){.bottom{grid-template-columns:1fr;}}
+
+.panel{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+.panel-head{
+  padding:.6rem 1rem;
+  border-bottom:1px solid var(--border);
+  font-size:.75rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.panel-body{padding:.8rem 1rem;font-size:.78rem;color:#9aa3bc;line-height:1.7;}
+.panel-body code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:3px;
+  padding:.05rem .35rem;
+}
+.panel-body li{margin-left:1rem;margin-bottom:.25rem;}
+.panel-body .row{display:flex;gap:.5rem;margin-bottom:.3rem;align-items:baseline;}
+.panel-body .row code{flex-shrink:0;}
+
+/* copy on click */
+.cmd{cursor:pointer;transition:color .15s;}
+.cmd:active{opacity:.6;}
+
+/* filter hide */
+.tbl tr.hidden{display:none;}
+.sec.all-hidden{opacity:.35;}
+
+@media(max-width:600px){
+  .sections{grid-template-columns:1fr;}
+  .tbl th:nth-child(3),.tbl td:nth-child(3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tux">🐧</div>
+  <h1><span class="num">100+</span> Linux Commands</h1>
+  <div class="sub">with short info &amp; usage — complete cheat sheet</div>
+  <div class="syntax-box">
+    <span>Syntax: <em>command</em> [options] &lt;arguments&gt;</span>
+    <span><em>[ ]</em> = optional &nbsp;·&nbsp; <em>&lt;&gt;</em> = required</span>
+  </div>
+  <div class="search-wrap">
+    <span class="ico">🔍</span>
+    <input type="text" id="search" placeholder="Filter commands… e.g. grep, chmod, ps">
+  </div>
+</header>
+
+<nav id="nav"></nav>
+<div class="sections" id="sections"></div>
+
+<div class="bottom">
+  <div class="panel">
+    <div class="panel-head" style="color:var(--c2);">💡 Tips</div>
+    <div class="panel-body">
+      <ul>
+        <li>Use <code>Tab</code> for auto-completion</li>
+        <li><code>man &lt;command&gt;</code> for manual</li>
+        <li><code>--help</code> for options</li>
+        <li>Practice makes perfect!</li>
+        <li><code>!!</code> = run last command with sudo</li>
+        <li><code>|</code> = pipe output to next command</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head" style="color:var(--c5);">📌 Examples</div>
+    <div class="panel-body">
+      <div class="row"><code>ls -lah /home</code></div>
+      <div class="row"><code>grep -r 'error' /var/log</code></div>
+      <div class="row"><code>df -h | grep '^/dev'</code></div>
+      <div class="row"><code>find / -name "*.conf" 2>/dev/null</code></div>
+      <div class="row"><code>ps aux | grep nginx</code></div>
+      <div class="row"><code>tar -czf backup.tar.gz /var/www</code></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head" style="color:var(--c1);">🔑 Key</div>
+    <div class="panel-body">
+      <div class="row"><code>[options]</code> — optional flags</div>
+      <div class="row"><code>&lt;arguments&gt;</code> — required input</div>
+      <div class="row"><code>|</code> — pipe: chain commands</div>
+      <div class="row"><code>!!</code> — repeat last command</div>
+      <div class="row"><code>&gt;</code> — redirect output to file</div>
+      <div class="row"><code>&gt;&gt;</code> — append output to file</div>
+      <div class="row"><code>2&gt;/dev/null</code> — suppress errors</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECS = [
+  {
+    id:"file-dir", num:1, title:"File & Directory Commands", icon:"📁", color:"var(--c1)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [1,"pwd","Print working directory","pwd"],
+      [2,"ls","List files and directories","ls"],
+      [3,"ls -l","Long listing with details","ls -l"],
+      [4,"ls -a","Show hidden files","ls -a"],
+      [5,"ls -lh","Human-readable sizes","ls -lh"],
+      [6,"cd","Change directory","cd /path"],
+      [7,"mkdir","Create a new directory","mkdir dir1"],
+      [8,"rmdir","Remove empty directory","rmdir dir1"],
+      [9,"touch","Create an empty file","touch file.txt"],
+      [10,"cp","Copy files or directories","cp a.txt b.txt"],
+      [11,"mv","Move or rename files","mv a.txt b.txt"],
+      [12,"rm","Remove files","rm a.txt"],
+      [13,"rm -rf","Force remove directory","rm -rf dir1"],
+      [14,"tree","Display directory structure","tree"],
+      [15,"file","Identify file type","file a.txt"],
+      [16,"stat","Display file details (inode, size…)","stat a.txt"],
+      [17,"basename","Get filename from path","basename /a/b/c.txt"],
+      [18,"dirname","Get directory path","dirname /a/b/c.txt"],
+      [19,"realpath","Display absolute path","realpath a.txt"],
+      [20,"ln","Create hard link","ln a.txt link.txt"],
+    ]
+  },
+  {
+    id:"viewing", num:2, title:"Viewing File Contents", icon:"👁️", color:"var(--c2)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [21,"cat","Display file content","cat file.txt"],
+      [22,"tac","Display file content (reverse)","tac file.txt"],
+      [23,"more","View file page by page","more file.txt"],
+      [24,"less","View file with navigation","less file.txt"],
+      [25,"head","Show first 10 lines","head file.txt"],
+      [26,"tail","Show last 10 lines","tail file.txt"],
+      [27,"tail -f","Follow file output in real-time","tail -f log.txt"],
+      [28,"nl","Number lines of file","nl file.txt"],
+      [29,"strings","Print readable strings","strings a.out"],
+      [30,"od","Octal/hex dump of file","od -c file.txt"],
+    ]
+  },
+  {
+    id:"text-proc", num:3, title:"Text Processing", icon:"📝", color:"var(--c3)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [31,"grep","Search text patterns","grep 'error' file.log"],
+      [32,"egrep","Extended grep (regex)","egrep 'err|fail' file.log"],
+      [33,"fgrep","Fixed string search","fgrep 'error' file.log"],
+      [34,"awk","Pattern scanning & processing","awk '{print $1}' file.txt"],
+      [35,"sed","Stream editor (search & replace)","sed 's/a/b/g' file.txt"],
+      [36,"cut","Cut selected columns","cut -d',' -f1 file.csv"],
+      [37,"sort","Sort lines","sort file.txt"],
+      [38,"uniq","Remove duplicate lines","uniq file.txt"],
+      [39,"wc","Count lines/words/characters","wc -l file.txt"],
+      [40,"tr","Translate/delete characters","tr 'a-z' 'A-Z' < file.txt"],
+      [41,"paste","Merge lines of files","paste f1.txt f2.txt"],
+      [42,"join","Join lines on common field","join file1 file2"],
+      [43,"split","Split a file into pieces","split -l 1000 file.txt"],
+      [44,"tee","Read from stdin and write to file","cmd | tee out.txt"],
+      [45,"column","Format output in columns","column -t file.txt"],
+    ]
+  },
+  {
+    id:"search", num:4, title:"Search Commands", icon:"🔎", color:"var(--c4)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [46,"find","Search files in directory tree","find / -name file.txt"],
+      [47,"locate","Find files (uses database)","locate file.txt"],
+      [48,"which","Find command location","which python3"],
+      [49,"whereis","Locate binary, source, man","whereis ls"],
+      [50,"type","Show command type","type cd"],
+    ]
+  },
+  {
+    id:"permissions", num:5, title:"File Permissions", icon:"🔒", color:"var(--c5)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [51,"chmod","Change file permissions","chmod 755 file.sh"],
+      [52,"chown","Change file owner","chown user file.txt"],
+      [53,"chgrp","Change group ownership","chgrp group file.txt"],
+      [54,"umask","Set default permissions","umask 022"],
+      [55,"getfacl","Get ACL permissions","getfacl file.txt"],
+      [56,"setfacl","Set ACL permissions","setfacl -m u:user:rw file"],
+    ]
+  },
+  {
+    id:"users", num:6, title:"User Management", icon:"👤", color:"var(--c6)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [57,"useradd","Add a new user","useradd dev"],
+      [58,"usermod","Modify user account","usermod -aG wheel dev"],
+      [59,"userdel","Delete a user","userdel dev"],
+      [60,"passwd","Change user password","passwd dev"],
+      [61,"groupadd","Add a new group","groupadd ops"],
+      [62,"groupmod","Modify group","groupmod -n newname ops"],
+      [63,"groupdel","Delete a group","groupdel ops"],
+      [64,"id","Display user & group IDs","id dev"],
+      [65,"whoami","Show current logged user","whoami"],
+      [66,"groups","Show user groups","groups dev"],
+    ]
+  },
+  {
+    id:"process", num:7, title:"Process Management", icon:"⚙️", color:"var(--c7)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [67,"ps","Display running processes","ps -ef"],
+      [68,"top","Real-time process monitor","top"],
+      [69,"htop","Interactive process viewer","htop"],
+      [70,"pgrep","Find process by name","pgrep sshd"],
+      [71,"pkill","Kill process by name","pkill httpd"],
+      [72,"kill","Kill process by PID","kill 1234"],
+      [73,"killall","Kill all processes by name","killall nginx"],
+      [74,"nice","Run process with priority","nice -n 10 cmd"],
+      [75,"renice","Change running process priority","renice -n 5 -p 1234"],
+      [76,"jobs","List background jobs","jobs"],
+      [77,"bg","Resume job in background","bg %1"],
+      [78,"fg","Bring job to foreground","fg %1"],
+      [79,"nohup","Run command immune to hangup","nohup cmd &"],
+    ]
+  },
+  {
+    id:"sysinfo", num:8, title:"System Information", icon:"🖥️", color:"var(--c8)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [80,"uname","System/kernel information","uname -a"],
+      [81,"hostname","Show or set hostname","hostname"],
+      [82,"uptime","System uptime and load","uptime"],
+      [83,"date","Show/set system date & time","date"],
+      [84,"cal","Display calendar","cal"],
+      [85,"arch","Show system architecture","arch"],
+      [86,"lscpu","CPU information","lscpu"],
+      [87,"lsblk","Block device info","lsblk"],
+      [88,"free","Memory usage","free -h"],
+      [89,"vmstat","Virtual memory statistics","vmstat 1 5"],
+      [90,"iostat","I/O statistics","iostat -x 1"],
+      [91,"sar","System Activity Reporter","sar -u 1 5"],
+      [92,"dmesg","Kernel ring buffer messages","dmesg | less"],
+    ]
+  },
+  {
+    id:"disk", num:9, title:"Disk Management", icon:"💾", color:"var(--c9)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [93,"df","Disk space usage","df -h"],
+      [94,"du","Directory size","du -sh dir/"],
+      [95,"fdisk","Partition table manipulator","fdisk /dev/sda"],
+      [96,"parted","Partition manager","parted /dev/sda"],
+      [97,"mkfs","Create filesystem","mkfs.ext4 /dev/sda1"],
+      [98,"mount","Mount filesystem","mount /dev/sda1 /mnt"],
+      [99,"umount","Unmount filesystem","umount /mnt"],
+      [100,"blkid","Display block device attributes","blkid"],
+    ]
+  },
+  {
+    id:"network", num:10, title:"Networking Commands", icon:"🌐", color:"var(--c10)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [101,"ping","Check host connectivity","ping google.com"],
+      [102,"ip","Show/Manage IP & interfaces","ip addr"],
+      [103,"ifconfig","Configure network interfaces","ifconfig"],
+      [104,"netstat","Network statistics (classic)","netstat -tulnp"],
+      [105,"ss","Socket statistics (modern)","ss -tulnp"],
+      [106,"route","Show/Manipulate routing table","route -n"],
+      [107,"traceroute","Trace network path","traceroute google.com"],
+      [108,"nslookup","DNS lookup","nslookup google.com"],
+      [109,"dig","DNS query tool","dig google.com"],
+      [110,"host","DNS lookup utility","host google.com"],
+      [111,"curl","Transfer data from URLs","curl https://example.com"],
+      [112,"wget","Download files","wget https://file.tar.gz"],
+      [113,"scp","Secure copy files","scp file user@host:/path"],
+      [114,"sftp","Secure file transfer","sftp user@host"],
+      [115,"ssh","Secure remote login","ssh user@host"],
+    ]
+  },
+  {
+    id:"packages", num:11, title:"Package Management", icon:"📦", color:"var(--c11)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [116,"rpm","RPM package manager","rpm -qa"],
+      [117,"yum","YUM package manager","yum install httpd"],
+      [118,"dnf","DNF package manager","dnf install nginx"],
+      [119,"apt","APT package manager","apt install nginx"],
+      [120,"dpkg","Debian package tool","dpkg -l"],
+    ]
+  },
+  {
+    id:"services", num:12, title:"Service Management", icon:"🔧", color:"var(--c12)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [121,"systemctl","Manage systemd services","systemctl status sshd"],
+      [122,"service","Manage services (classic)","service httpd start"],
+      [123,"journalctl","View systemd logs","journalctl -xe"],
+      [124,"chkconfig","Manage runlevels (legacy)","chkconfig --list"],
+    ]
+  },
+  {
+    id:"archive", num:13, title:"Archive & Compression", icon:"🗜️", color:"var(--c13)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [125,"tar","Archive files","tar -cvf file.tar dir/"],
+      [126,"gzip","Compress file","gzip file.txt"],
+      [127,"gunzip","Uncompress file","gunzip file.txt.gz"],
+      [128,"zip","Create ZIP archive","zip file.zip file.txt"],
+      [129,"unzip","Extract ZIP archive","unzip file.zip"],
+      [130,"bzip2","Compress using bzip2","bzip2 file.txt"],
+    ]
+  },
+  {
+    id:"cron", num:14, title:"Cron & Scheduling", icon:"⏰", color:"var(--c14)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [131,"crontab","Schedule cron jobs","crontab -e"],
+      [132,"at","Schedule one-time job","at 10:00"],
+      [133,"atq","List at jobs","atq"],
+      [134,"atrm","Remove at job","atrm 1"],
+    ]
+  },
+  {
+    id:"shell", num:15, title:"Shell Commands", icon:"💻", color:"var(--c15)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [135,"echo","Print text","echo 'Hello $USER'"],
+      [136,"printf","Format and print","printf 'Hi %s\\n' $USER"],
+      [137,"alias","Create alias","alias ll='ls -la'"],
+      [138,"unalias","Remove alias","unalias ll"],
+      [139,"history","Show command history","history"],
+      [140,"env","Show environment variables","env"],
+      [141,"export","Set environment variable","export VAR=value"],
+      [142,"source","Run script in current shell","source file.sh"],
+      [143,"read","Read user input","read var"],
+      [144,"xargs","Build and execute command","echo a b | xargs ls"],
+    ]
+  },
+  {
+    id:"logs", num:16, title:"Log Monitoring", icon:"📋", color:"var(--c16)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [145,"journalctl -xe","View detailed system logs","journalctl -xe"],
+      [146,"tail -f /var/log/messages","Monitor syslog","tail -f /var/log/messages"],
+      [147,"tail -f /var/log/secure","Monitor secure log","tail -f /var/log/secure"],
+      [148,"grep ERROR /var/log/app","Find errors in log","grep ERROR app.log"],
+      [149,"less /var/log/file","View log file","less /var/log/file"],
+    ]
+  },
+  {
+    id:"interview", num:17, title:"Linux Admin Interview Important", icon:"⭐", color:"var(--c17)",
+    cols:["#","Command","What it does","Example"],
+    rows:[
+      [150,"find / -name file.txt","Search file in system","find / -name file.txt"],
+      [151,"grep -i error app.log","Case-insensitive search","grep -i error app.log"],
+      [152,"ps -ef | grep process","Find running process","ps -ef | grep nginx"],
+      [153,"netstat -tulnp","List listening ports","netstat -tulnp"],
+      [154,"ss -tulnp","List sockets","ss -tulnp"],
+      [155,"df -h","Disk usage","df -h"],
+      [156,"du -sh *","Size of all in current dir","du -sh *"],
+      [157,"free -m","Memory usage","free -m"],
+      [158,"top","Real-time process view","top"],
+      [159,"vmstat 1","System performance","vmstat 1"],
+      [160,"iostat -x 1","I/O performance","iostat -x 1"],
+    ]
+  },
+];
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+SECS.forEach(s => {
+  const a = document.createElement('a');
+  a.href = '#' + s.id;
+  a.textContent = s.num + '. ' + s.title.replace(' Commands','').replace(' Management','').replace(' & ','&');
+  a.style.cssText = `--hc:${s.color}`;
+  a.addEventListener('mouseenter', () => { a.style.color = s.color; a.style.borderColor = s.color; });
+  a.addEventListener('mouseleave', () => { a.style.color = ''; a.style.borderColor = ''; });
+  nav.appendChild(a);
+});
+
+// ── Sections ──────────────────────────────────────────────────────────────────
+const container = document.getElementById('sections');
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+SECS.forEach(s => {
+  const sec = document.createElement('div');
+  sec.className = 'sec';
+  sec.id = s.id;
+  sec.style.borderTopColor = s.color;
+  sec.style.borderTopWidth = '2px';
+
+  const head = `
+    <div class="sec-head">
+      <span class="sec-num">${String(s.num).padStart(2,'0')}</span>
+      <span class="sec-title" style="color:${s.color}">${esc(s.title)}</span>
+      <span class="sec-icon">${s.icon}</span>
+    </div>`;
+
+  const thead = `<thead><tr>${s.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${s.rows.map(r => {
+    const [num,...cells] = r;
+    const tds = cells.map((c,i) => {
+      if(i===0) return `<td><span class="cmd" title="Click to copy" onclick="copy(this,'${String(c).replace(/'/g,"\\'")}')"><span style="color:${s.color}">${esc(c)}</span></span></td>`;
+      if(i===cells.length-1) return `<td><span class="ex">${esc(c)}</span></td>`;
+      return `<td class="desc">${esc(c)}</td>`;
+    });
+    return `<tr data-search="${String(r.join(' ')).toLowerCase()}">
+      <td style="color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.65rem;min-width:1.8rem;">${num}</td>
+      ${tds.join('')}
+    </tr>`;
+  }).join('')}</tbody>`;
+
+  sec.innerHTML = head + `<div style="overflow-x:auto"><table class="tbl">${thead}${tbody}</table></div>`;
+  container.appendChild(sec);
+});
+
+// ── Copy on click ─────────────────────────────────────────────────────────────
+function copy(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = el.innerHTML;
+    el.style.color = '#3ddc84';
+    setTimeout(() => { el.style.color = ''; }, 1000);
+  });
+}
+window.copy = copy;
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.sec').forEach(sec => {
+    let any = false;
+    sec.querySelectorAll('tbody tr').forEach(tr => {
+      const match = !q || tr.dataset.search.includes(q);
+      tr.classList.toggle('hidden', !match);
+      if(match) any = true;
+    });
+    sec.classList.toggle('all-hidden', !any);
+  });
+});
+</script>
+</body>
+</html>
