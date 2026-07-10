@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure AD (Entra ID) — Complete Overview Part 1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#07090f;
+  --s1:#0b0f1c;
+  --s2:#0f1525;
+  --s3:#131a2e;
+  --border:#1a2240;
+  --border2:#1e2d55;
+  --text:#d8e2ff;
+  --muted:#4a5a88;
+
+  --blue:#4a9eff;
+  --blue2:#2979ff;
+  --cyan:#00e5ff;
+  --green:#00e676;
+  --amber:#ffca28;
+  --orange:#ff7043;
+  --purple:#ce93d8;
+  --red:#ff5252;
+  --teal:#1de9b6;
+  --sky:#40c4ff;
+  --pink:#f48fb1;
+  --lime:#aed581;
+  --indigo:#7986cb;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:2.5rem 1rem 5rem;
+}
+
+/* ── HEADER ─────────────────────────── */
+header{text-align:center;margin-bottom:2.5rem;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:.4rem;}
+header h1{font-size:clamp(1.6rem,4.5vw,2.8rem);font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;}
+header h1 .hl{color:var(--cyan);}
+header h1 .sub{display:block;font-size:clamp(1rem,2.5vw,1.6rem);color:var(--blue);margin-top:.1rem;}
+.badges{display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap;}
+.badge{background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:.25rem .75rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);}
+
+/* ── LAYOUT ─────────────────────────── */
+.row{display:grid;gap:1rem;max-width:1200px;margin:0 auto 1rem;}
+.col2{grid-template-columns:1fr 1fr;}
+.col3{grid-template-columns:1fr 1fr 1fr;}
+.col12{grid-template-columns:1.15fr .85fr;}
+.col21{grid-template-columns:.85fr 1.15fr;}
+@media(max-width:760px){.col2,.col3,.col12,.col21{grid-template-columns:1fr;}}
+
+/* ── CARD ────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
+.card-head{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;border-bottom:1px solid var(--border);background:var(--s2);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:.63rem;font-weight:700;color:var(--muted);}
+.card-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;}
+.card-body{padding:1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.75rem;}
+
+/* ── BULLETS ─────────────────────────── */
+.bullets{display:flex;flex-direction:column;gap:.4rem;}
+.bullet{display:flex;align-items:flex-start;gap:.5rem;font-size:.8rem;color:#8fa3cc;line-height:1.5;}
+.bullet .dot{color:var(--blue);flex-shrink:0;margin-top:.1rem;}
+
+/* ── CHECKS ──────────────────────────── */
+.checks{display:flex;flex-direction:column;gap:.35rem;}
+.chk{display:flex;align-items:flex-start;gap:.45rem;font-size:.78rem;color:#8fa3cc;line-height:1.4;}
+.chk-icon{color:var(--green);flex-shrink:0;font-size:.8rem;margin-top:.1rem;}
+
+/* ── TABLES ──────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;font-size:.74rem;}
+.tbl th{padding:.35rem .75rem;background:var(--s3);border:1px solid var(--border2);color:var(--blue);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:left;}
+.tbl td{padding:.38rem .75rem;border:1px solid var(--border);color:#8fa3cc;vertical-align:top;line-height:1.45;}
+.tbl tr:hover td{background:rgba(74,158,255,.04);}
+.tbl .icon-cell{font-size:1rem;text-align:center;width:2.2rem;}
+.tbl .name-cell{font-weight:600;color:var(--text);white-space:nowrap;}
+
+/* ── FLOW ────────────────────────────── */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;padding:.3rem 0;}
+.flow-step{background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.5rem .7rem;text-align:center;flex:1;min-width:70px;}
+.flow-step .ficon{font-size:1.1rem;}
+.flow-step .flabel{font-size:.65rem;font-weight:600;color:var(--blue);margin-top:.2rem;line-height:1.3;}
+.flow-arrow{color:var(--muted);font-size:1rem;flex-shrink:0;}
+
+/* ── AUTH METHODS ─────────────────────── */
+.auth-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;}
+@media(max-width:500px){.auth-grid{grid-template-columns:repeat(3,1fr);}}
+.auth-item{background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .4rem;text-align:center;}
+.auth-item .aicon{font-size:1.2rem;}
+.auth-item .alabel{font-size:.62rem;font-weight:600;color:var(--sky);margin-top:.25rem;line-height:1.3;}
+
+/* ── SSO FLOW ─────────────────────────── */
+.sso-flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1rem;}
+.sso-node{text-align:center;}
+.sso-node .sicon{font-size:1.2rem;}
+.sso-node .slabel{font-size:.65rem;color:var(--muted);margin-top:.15rem;}
+.sso-arrow{color:var(--muted);font-size:1rem;flex-shrink:0;}
+.sso-apps{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:.4rem .65rem;display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:100px;}
+.sso-app{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:#8fa3cc;}
+.sso-app-icon{font-size:.85rem;}
+
+/* ── CONDITIONAL ACCESS ───────────────── */
+.ca-signals{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin-bottom:.75rem;}
+@media(max-width:500px){.ca-signals{grid-template-columns:repeat(3,1fr);}}
+.ca-signal{background:var(--s3);border:1px solid var(--border2);border-radius:7px;padding:.45rem;text-align:center;}
+.ca-signal .csicon{font-size:1rem;}
+.ca-signal .cslabel{font-size:.62rem;color:var(--sky);margin-top:.15rem;font-weight:600;}
+.ca-result{display:flex;gap:.75rem;justify-content:center;}
+.ca-allow{background:#0a2a1a;border:1px solid var(--green);border-radius:8px;padding:.45rem 1rem;text-align:center;}
+.ca-allow .rlabel{font-size:.72rem;font-weight:700;color:var(--green);}
+.ca-block{background:#2a0a0a;border:1px solid var(--red);border-radius:8px;padding:.45rem 1rem;text-align:center;}
+.ca-block .rlabel{font-size:.72rem;font-weight:700;color:var(--red);}
+.ca-arrow{display:flex;align-items:center;color:var(--muted);font-size:.9rem;}
+
+/* ── LICENSES TABLE ───────────────────── */
+.lic-table{width:100%;border-collapse:collapse;font-size:.73rem;}
+.lic-table th{padding:.35rem .7rem;background:var(--s3);border:1px solid var(--border2);color:var(--blue);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:left;}
+.lic-table td{padding:.38rem .7rem;border:1px solid var(--border);color:#8fa3cc;line-height:1.45;vertical-align:top;}
+.lic-table tr:hover td{background:rgba(74,158,255,.04);}
+.lic-badge{font-family:'JetBrains Mono',monospace;font-size:.67rem;font-weight:700;padding:.1rem .45rem;border-radius:4px;white-space:nowrap;}
+
+/* ── AD CONNECT FLOW ──────────────────── */
+.adc-flow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;justify-content:center;}
+.adc-node{background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .8rem;text-align:center;min-width:110px;}
+.adc-node .anicon{font-size:1.2rem;}
+.adc-node .anlabel{font-size:.68rem;font-weight:600;color:var(--text);margin-top:.2rem;line-height:1.3;}
+.adc-arrow{color:var(--muted);font-size:1.1rem;flex-shrink:0;}
+
+/* ── TERMS TABLE ──────────────────────── */
+.terms{display:flex;flex-direction:column;gap:.4rem;}
+.term-row{display:flex;align-items:flex-start;gap:.75rem;font-size:.77rem;line-height:1.45;}
+.term-key{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;color:var(--cyan);min-width:7.5rem;flex-shrink:0;}
+.term-sep{color:var(--muted);flex-shrink:0;}
+.term-val{color:#8fa3cc;}
+
+/* ── REMEMBER BADGE ───────────────────── */
+.remember{
+  background:linear-gradient(135deg,#0d1835,#1a2a50);
+  border:2px solid var(--blue2);border-radius:50%;
+  width:110px;height:110px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;flex-shrink:0;
+  box-shadow:0 0 20px rgba(41,121,255,.2);
+}
+.remember .rlabel{font-size:.65rem;font-weight:700;color:var(--amber);line-height:1.4;}
+
+/* ── BANNER ───────────────────────────── */
+.banner{max-width:1200px;margin:1rem auto 0;background:linear-gradient(135deg,#0a1535,#0d1e42);border:1px solid var(--blue2);border-left:4px solid var(--blue);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:flex-start;gap:.75rem;}
+.banner-icon{font-size:1.3rem;flex-shrink:0;margin-top:.05rem;}
+.banner-text{font-size:.84rem;color:#a0b4d8;line-height:1.6;font-style:italic;}
+.banner-text strong{color:var(--cyan);font-style:normal;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Azure AD (Entra ID) Notes</div>
+  <h1><span class="hl">Azure AD</span> (Entra ID)
+    <span class="sub">Complete Overview — Part 1</span>
+  </h1>
+  <div class="badges">
+    <span class="badge">Overview</span>
+    <span class="badge">Part 1</span>
+    <span class="badge">Page 1</span>
+  </div>
+</header>
+
+<!-- ROW 1: What is Entra ID + How it Works -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">1.</span>
+      <span class="card-title" style="color:var(--cyan);">What is Azure AD (Entra ID)?</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Azure AD (now <strong style="color:var(--cyan)">Microsoft Entra ID</strong>) is Microsoft's cloud identity and access management service.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>It helps organizations manage <strong style="color:var(--cyan)">users, groups, applications, and devices</strong> in the cloud.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Provides <strong style="color:var(--cyan)">Single Sign-On (SSO)</strong> to cloud and on-premises applications.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Secures access with <strong style="color:var(--cyan)">Conditional Access and Multi-Factor Authentication (MFA)</strong>.</span></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:.75rem;background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.65rem 1rem;margin-top:.1rem;">
+        <div style="font-size:2rem;">🔷</div>
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--cyan);">Microsoft Entra ID</div>
+          <div style="font-size:.68rem;color:var(--muted);margin-top:.1rem;">Cloud Identity &amp; Access Management</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">2.</span>
+      <span class="card-title" style="color:var(--green);">How Azure AD (Entra ID) Works</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="ficon">👤</div><div class="flabel">User</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">🔷</div><div class="flabel">Microsoft Entra ID</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">✅</div><div class="flabel">Authentication &amp; Authorization</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">📦</div><div class="flabel">Access to Resources</div></div>
+      </div>
+      <div class="checks" style="margin-top:.2rem;">
+        <div class="chk"><span class="chk-icon">☑</span><span>User signs in to application or resource.</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Entra ID authenticates the user.</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Policies are evaluated.</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Access is granted to resources.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Core Components + Types of Identities -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">3.</span>
+      <span class="card-title" style="color:var(--amber);">Core Components of Azure AD (Entra ID)</span>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th class="icon-cell"></th><th>Component</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="icon-cell">👤</td>
+            <td class="name-cell" style="color:var(--cyan);">Users</td>
+            <td>Individual identities that can sign in to Azure AD.</td>
+          </tr>
+          <tr>
+            <td class="icon-cell">👥</td>
+            <td class="name-cell" style="color:var(--green);">Groups</td>
+            <td>Collection of users for easy management and access.</td>
+          </tr>
+          <tr>
+            <td class="icon-cell">📦</td>
+            <td class="name-cell" style="color:var(--purple);">Applications</td>
+            <td>Enterprise applications and SaaS apps integrated with Entra ID.</td>
+          </tr>
+          <tr>
+            <td class="icon-cell">🖥️</td>
+            <td class="name-cell" style="color:var(--sky);">Devices</td>
+            <td>Devices registered or joined to Entra ID.</td>
+          </tr>
+          <tr>
+            <td class="icon-cell">☁️</td>
+            <td class="name-cell" style="color:var(--amber);">Tenants</td>
+            <td>A dedicated instance of Entra ID for an organization.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">4.</span>
+      <span class="card-title" style="color:var(--purple);">Types of Identities</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot" style="color:var(--cyan);">●</span><span><strong style="color:var(--cyan);">Member User</strong> — Created and managed in Entra ID.</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--green);">●</span><span><strong style="color:var(--green);">Guest User</strong> — External users invited for collaboration.</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--purple);">●</span><span><strong style="color:var(--purple);">External Identities</strong> — Customers or partners using CIAM.</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--amber);">●</span><span><strong style="color:var(--amber);">Managed Identity</strong> — Used by applications and Azure services.</span></div>
+      </div>
+
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.7rem .9rem;margin-top:.2rem;">
+        <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.45rem;">Identity Quick Reference</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem;">
+          <div style="font-size:.7rem;color:#8fa3cc;"><span style="color:var(--cyan);">Member</span> → Internal</div>
+          <div style="font-size:.7rem;color:#8fa3cc;"><span style="color:var(--green);">Guest</span> → B2B</div>
+          <div style="font-size:.7rem;color:#8fa3cc;"><span style="color:var(--purple);">External</span> → CIAM</div>
+          <div style="font-size:.7rem;color:#8fa3cc;"><span style="color:var(--amber);">Managed</span> → Apps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 3: Auth Methods (full width) -->
+<div class="row" style="max-width:1200px;margin:0 auto 1rem;">
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">5.</span>
+      <span class="card-title" style="color:var(--sky);">Authentication Methods</span>
+    </div>
+    <div class="card-body">
+      <div class="auth-grid">
+        <div class="auth-item">
+          <div class="aicon">🔑</div>
+          <div class="alabel">Password</div>
+        </div>
+        <div class="auth-item">
+          <div class="aicon">📱</div>
+          <div class="alabel">Microsoft Authenticator</div>
+        </div>
+        <div class="auth-item">
+          <div class="aicon">📟</div>
+          <div class="alabel">Phone / SMS OTP</div>
+        </div>
+        <div class="auth-item">
+          <div class="aicon">🔐</div>
+          <div class="alabel">FIDO2 Security Key</div>
+        </div>
+        <div class="auth-item">
+          <div class="aicon">📜</div>
+          <div class="alabel">Certificate-based Auth</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 4: SSO + Conditional Access -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">6.</span>
+      <span class="card-title" style="color:var(--teal);">Single Sign-On (SSO)</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Users sign in once and get access to <strong style="color:var(--teal)">multiple applications</strong>.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Supports <strong style="color:var(--cyan)">SAML, OAuth 2.0, OpenID Connect</strong>.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Reduces <strong style="color:var(--cyan)">password fatigue</strong> and improves security.</span></div>
+      </div>
+      <div class="sso-flow">
+        <div class="sso-node">
+          <div class="sicon">👤</div>
+          <div class="slabel">User</div>
+        </div>
+        <div class="sso-arrow">→</div>
+        <div class="sso-node">
+          <div class="sicon">🔷</div>
+          <div class="slabel" style="color:var(--cyan);">Microsoft<br>Entra ID</div>
+        </div>
+        <div class="sso-arrow">→</div>
+        <div class="sso-apps">
+          <div style="font-size:.63rem;font-weight:700;color:var(--teal);margin-bottom:.2rem;">Applications</div>
+          <div class="sso-app"><span class="sso-app-icon">🏢</span>Office 365</div>
+          <div class="sso-app"><span class="sso-app-icon">☁️</span>Salesforce</div>
+          <div class="sso-app"><span class="sso-app-icon">🎥</span>Zoom</div>
+          <div class="sso-app"><span class="sso-app-icon">🔧</span>Custom App</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">7.</span>
+      <span class="card-title" style="color:var(--orange);">Conditional Access</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Enforces access policies <strong style="color:var(--orange)">based on conditions</strong>.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Decisions are made in real-time based on <strong style="color:var(--orange)">user, device, location, application, and risk</strong>.</span></div>
+      </div>
+      <div class="ca-signals">
+        <div class="ca-signal"><div class="csicon">👤</div><div class="cslabel">User</div></div>
+        <div class="ca-signal"><div class="csicon">🖥️</div><div class="cslabel">Device</div></div>
+        <div class="ca-signal"><div class="csicon">📍</div><div class="cslabel">Location</div></div>
+        <div class="ca-signal"><div class="csicon">📦</div><div class="cslabel">Application</div></div>
+        <div class="ca-signal"><div class="csicon">⚠️</div><div class="cslabel">Risk</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;justify-content:center;">
+        <div class="ca-allow"><div style="font-size:1.1rem;">✅</div><div class="rlabel">Allow Access</div></div>
+        <div style="color:var(--muted);font-size:.8rem;">or</div>
+        <div class="ca-block"><div style="font-size:1.1rem;">🚫</div><div class="rlabel">Block Access</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 5: Licenses + AD Connect -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">8.</span>
+      <span class="card-title" style="color:var(--indigo);">Licenses of Entra ID</span>
+    </div>
+    <div class="card-body">
+      <table class="lic-table">
+        <thead><tr><th>Edition</th><th>Key Features</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="lic-badge" style="background:#1a2240;color:var(--muted);">Free</span></td>
+            <td>User &amp; Group management, Basic SSO, MFA, Self-service password reset</td>
+          </tr>
+          <tr>
+            <td><span class="lic-badge" style="background:#0d2040;color:var(--blue);">P1</span></td>
+            <td>Everything in Free + Conditional Access, SSO to SaaS apps, Dynamic Groups</td>
+          </tr>
+          <tr>
+            <td><span class="lic-badge" style="background:#1a0d40;color:var(--purple);">P2</span></td>
+            <td>Everything in P1 + Identity Protection, Privileged Identity Management (PIM), Access Reviews</td>
+          </tr>
+          <tr>
+            <td><span class="lic-badge" style="background:#0d2a1a;color:var(--teal);">External ID</span></td>
+            <td>CIAM, B2B Collaboration, External User Management</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">9.</span>
+      <span class="card-title" style="color:var(--lime);">Azure AD (Entra ID) Connect</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Connects <strong style="color:var(--lime)">on-premises Active Directory</strong> to Entra ID.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Enables <strong style="color:var(--lime)">Hybrid Identity</strong> and synchronized login.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Supports features like <strong style="color:var(--cyan)">SSO, Password Writeback</strong>, and <strong style="color:var(--cyan)">Hybrid Join</strong>.</span></div>
+      </div>
+      <div class="adc-flow" style="margin-top:.25rem;">
+        <div class="adc-node" style="border-color:var(--amber);">
+          <div class="anicon">🏢</div>
+          <div class="anlabel" style="color:var(--amber);">On-premises<br>Active Directory</div>
+        </div>
+        <div class="adc-arrow">⇄</div>
+        <div class="adc-node" style="border-color:var(--green);">
+          <div class="anicon">🔄</div>
+          <div class="anlabel" style="color:var(--green);">Azure AD<br>Connect</div>
+        </div>
+        <div class="adc-arrow">⇄</div>
+        <div class="adc-node" style="border-color:var(--cyan);">
+          <div class="anicon">🔷</div>
+          <div class="anlabel" style="color:var(--cyan);">Microsoft<br>Entra ID</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 6: Key Benefits + Bonus Terms -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">10.</span>
+      <span class="card-title" style="color:var(--green);">Key Benefits</span>
+    </div>
+    <div class="card-body" style="flex-direction:row;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div class="checks" style="flex:1;min-width:180px;">
+        <div class="chk"><span class="chk-icon">☑</span><span>Centralized identity management</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Secure access with Conditional Access &amp; MFA</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Single Sign-On to cloud and on-prem apps</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Protects identities and reduces risk</span></div>
+        <div class="chk"><span class="chk-icon">☑</span><span>Scalable and cost-effective</span></div>
+      </div>
+      <div class="remember">
+        <div style="font-size:1.2rem;margin-bottom:.3rem;">⭐</div>
+        <div class="rlabel">Secure Identities,<br>Secure Everything!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title" style="color:var(--pink);">🎁 Bonus — Important Terms</span>
+    </div>
+    <div class="card-body">
+      <div class="terms">
+        <div class="term-row">
+          <span class="term-key">Tenant</span>
+          <span class="term-sep">:</span>
+          <span class="term-val">A dedicated instance of Entra ID</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">App Registration</span>
+          <span class="term-sep">:</span>
+          <span class="term-val">Register an application to integrate with Entra ID</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">Enterprise App</span>
+          <span class="term-sep">:</span>
+          <span class="term-val">Pre-configured app for SSO and user assignment</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">Object ID</span>
+          <span class="term-sep">:</span>
+          <span class="term-val">Unique ID for users, groups, apps, devices</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">Directory Role</span>
+          <span class="term-sep">:</span>
+          <span class="term-val">Roles assigned to manage Entra ID resources</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner -->
+<div class="banner">
+  <span class="banner-icon">⭐</span>
+  <div class="banner-text">
+    <strong>Remember:</strong> Azure AD (Entra ID) is the backbone of Microsoft's security stack — master it, and you master <strong>identity security for the modern cloud</strong>.
+  </div>
+</div>
+
+</body>
+</html>
