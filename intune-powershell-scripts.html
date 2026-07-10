@@ -3,382 +3,441 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>15 Essential Daily PowerShell Scripts</title>
+<title>Top 15 PowerShell Scripts for Microsoft Intune</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #21262d;
-    --accent: #58a6ff;
-    --accent2: #3fb950;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --badge-bg: #1f6feb;
-    --code-bg: #0d1117;
-    --hover: #1c2128;
-  }
+:root{
+  --bg:#080b14;
+  --s1:#0d1120;
+  --s2:#111828;
+  --border:#1a2236;
+  --border2:#1e2d48;
+  --text:#dde4f5;
+  --muted:#4a5a80;
+  --dim:#1e2a42;
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 2rem 1rem 4rem;
-  }
+  --cyan:#00bcd4;
+  --green:#4caf50;
+  --orange:#ff9800;
+  --purple:#9c27b0;
+  --blue:#2196f3;
+  --pink:#e91e63;
+  --teal:#009688;
+  --amber:#ffc107;
+  --indigo:#5c6bc0;
+  --red:#f44336;
+  --lime:#8bc34a;
+  --magenta:#e040fb;
+  --sky:#03a9f4;
+  --gold:#ffb300;
+  --rose:#ff4081;
+}
 
-  header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:2.5rem 1rem 5rem;
+}
 
-  header .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--accent2);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-  }
+/* ── HEADER ───────────────────────── */
+header{text-align:center;margin-bottom:2.5rem;position:relative;}
+header h1{
+  font-size:clamp(1.5rem,3.5vw,2.4rem);
+  font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1.2;
+  color:#fff;
+}
+header h1 .ps{color:var(--cyan);}
+header h1 .intune{color:var(--blue);}
+.tagline{
+  margin-top:.7rem;
+  color:var(--muted);
+  font-size:.88rem;
+  max-width:600px;
+  margin-left:auto;
+  margin-right:auto;
+  line-height:1.6;
+}
+.tagline strong{color:var(--cyan);}
 
-  header h1 {
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    line-height: 1.2;
-  }
+.note-badge{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  background:var(--s2);
+  border:1px solid var(--purple);
+  border-radius:10px;
+  padding:.5rem 1rem;
+  font-size:.72rem;
+  color:var(--muted);
+  margin-top:1rem;
+  gap:.15rem;
+}
+.note-badge strong{color:#ce93d8;}
 
-  header h1 span {
-    color: var(--accent);
-  }
+/* ── GRID ─────────────────────────── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:1rem;
+  max-width:1160px;
+  margin:0 auto 2rem;
+}
 
-  header p {
-    margin-top: 0.75rem;
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
+/* ── CARDS ────────────────────────── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition:transform .15s, border-color .2s;
+}
+.card:hover{transform:translateY(-2px); border-color:var(--accent);}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 1.25rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+.card-head{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.7rem 1rem;
+  border-bottom:1px solid var(--border);
+  background:var(--s2);
+}
+.badge{
+  width:1.8rem;
+  height:1.8rem;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;
+  font-weight:700;
+  color:#fff;
+  flex-shrink:0;
+}
+.card-icon{font-size:1rem;flex-shrink:0;}
+.card-title{
+  font-size:.78rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  line-height:1.3;
+}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.15s;
-    display: flex;
-    flex-direction: column;
-  }
+.card-body{
+  padding:.85rem 1rem 1rem;
+  display:flex;
+  flex-direction:column;
+  gap:.65rem;
+  flex:1;
+}
+.card-desc{
+  font-size:.78rem;
+  color:#7a8fb8;
+  line-height:1.5;
+}
 
-  .card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
+pre{
+  background:#050810;
+  border:1px solid var(--border2);
+  border-radius:7px;
+  padding:.65rem .85rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  line-height:1.7;
+  color:#c8d6f0;
+  overflow-x:auto;
+  position:relative;
+  flex:1;
+}
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1.1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--hover);
-  }
+.copy-btn{
+  position:absolute;
+  top:.4rem;
+  right:.4rem;
+  background:var(--border2);
+  border:none;
+  color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;
+  padding:.2rem .5rem;
+  border-radius:4px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity .15s, background .15s, color .15s;
+}
+pre:hover .copy-btn{opacity:1;}
+.copy-btn:hover{background:var(--cyan);color:#000;}
+.copy-btn.copied{background:var(--green);color:#fff;opacity:1;}
 
-  .badge {
-    background: var(--badge-bg);
-    color: #fff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 600;
-    width: 1.7rem;
-    height: 1.7rem;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+/* syntax highlight */
+.kw{color:#f48fb1;}
+.cm{color:#4a5a80;font-style:italic;}
+.str{color:#80cbc4;}
+.pm{color:#ffcc80;}
+.op{color:#ce93d8;}
+.fn{color:#90caf9;}
 
-  .card-title {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.3;
-  }
+/* ── BOTTOM PANELS ────────────────── */
+.bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  max-width:1160px;
+  margin:0 auto;
+}
+@media(max-width:640px){.bottom{grid-template-columns:1fr;}}
 
-  .card-body {
-    padding: 1rem 1.1rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+.panel{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+}
+.panel-head{
+  padding:.65rem 1.1rem;
+  border-bottom:1px solid var(--border);
+  font-size:.7rem;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+.panel-body{padding:1rem 1.1rem;}
 
-  .desc {
-    font-size: 0.8rem;
-    color: var(--muted);
-    line-height: 1.5;
-  }
+/* notes list */
+.notes-list{display:flex;flex-direction:column;gap:.5rem;}
+.note-item{
+  display:flex;
+  align-items:flex-start;
+  gap:.5rem;
+  font-size:.8rem;
+  color:#7a8fb8;
+  line-height:1.5;
+}
+.note-dot{color:var(--cyan);font-size:.9rem;margin-top:.05rem;flex-shrink:0;}
 
-  pre {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.75rem 0.9rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    line-height: 1.65;
-    color: #c9d1d9;
-    overflow-x: auto;
-    flex: 1;
-    position: relative;
-  }
+/* install panel */
+.install-pre{
+  background:#050810;
+  border:1px solid var(--border2);
+  border-radius:7px;
+  padding:.7rem 1rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  line-height:1.75;
+  color:var(--green);
+  margin-top:.75rem;
+  position:relative;
+}
 
-  .kw  { color: #ff7b72; }   /* keywords */
-  .fn  { color: #d2a8ff; }   /* cmdlets */
-  .str { color: #a5d6ff; }   /* strings */
-  .cm  { color: #8b949e; font-style: italic; } /* comments */
-  .num { color: #79c0ff; }   /* numbers */
-  .var { color: #ffa657; }   /* variables */
-  .op  { color: #f0883e; }   /* operators */
+/* ── FOOTER ──────────────────────── */
+footer{
+  text-align:center;
+  margin-top:2.5rem;
+  font-size:.8rem;
+  color:var(--muted);
+  font-style:italic;
+}
+footer strong{
+  background:linear-gradient(90deg,var(--cyan),var(--blue),var(--purple));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-style:normal;
+}
 
-  .copy-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: var(--border);
-    border: none;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .copy-btn:hover { background: var(--accent); color: #fff; }
-  .copy-btn.copied { background: var(--accent2); color: #fff; }
-
-  footer {
-    text-align: center;
-    margin-top: 3rem;
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-family: 'JetBrains Mono', monospace;
-  }
+@media(max-width:500px){
+  .grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="eyebrow">// powershell reference</div>
-  <h1>15 Essential <span>Daily</span> PowerShell Scripts</h1>
-  <p>Click any script to copy it to your clipboard.</p>
+  <h1>Top 15 <span class="ps">PowerShell</span> Scripts<br>for <span class="intune">Microsoft Intune</span></h1>
+  <p class="tagline">These PowerShell scripts help in automating Microsoft Intune management using <strong>Microsoft Graph PowerShell SDK</strong>.</p>
+  <div class="note-badge">
+    <span>♥ Automate Today, Secure Tomorrow</span>
+  </div>
 </header>
 
 <div class="grid" id="grid"></div>
 
-<footer>Built for Windows Server &amp; Active Directory environments · PS 5.1+</footer>
+<div class="bottom">
+  <div class="panel">
+    <div class="panel-head" style="color:var(--amber);">📋 Notes</div>
+    <div class="panel-body">
+      <div class="notes-list">
+        <div class="note-item"><span class="note-dot">●</span><span>Install Microsoft Graph PowerShell SDK before running these scripts.</span></div>
+        <div class="note-item"><span class="note-dot">●</span><span>Use least privilege permissions.</span></div>
+        <div class="note-item"><span class="note-dot">●</span><span>Replace parameters as per your environment.</span></div>
+        <div class="note-item"><span class="note-dot">●</span><span>Use <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:.72rem;">-All</code> parameter for large data sets (supports pagination).</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head" style="color:var(--green);">⚡ Install Microsoft Graph PowerShell</div>
+    <div class="panel-body">
+      <p style="font-size:.78rem;color:#7a8fb8;margin-bottom:.5rem;">Run once in an elevated PowerShell session:</p>
+      <div class="install-pre" id="install-pre">
+        <button class="copy-btn" id="install-copy" onclick="copyInstall()">copy</button>
+        Install-Module Microsoft.Graph -Scope CurrentUser<br>
+        Import-Module Microsoft.Graph
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>⭐ <strong>Automate Today, Secure Tomorrow with PowerShell &amp; Intune!</strong> ⭐</footer>
 
 <script>
 const scripts = [
   {
-    title: "Check Server Uptime",
-    desc: "Get last boot time (uptime) of local or remote server.",
-    code: `Get-CimInstance Win32_OperatingSystem |
-  Select-Object CSName,
-  @{Name="LastBootTime";Expression={$_.LastBootUpTime}}`
+    num:1, icon:"💻", color:"var(--cyan)", title:"Connect to Microsoft Graph",
+    desc:"Connect to Microsoft Graph with required scopes.",
+    code:`Connect-MgGraph -Scopes "Device.Read.All",\n  "DeviceManagementConfiguration.Read.All",\n  "DeviceManagementManagedDevices.Read.All"`
   },
   {
-    title: "Check Disk Space on Multiple Servers",
-    desc: "Check free and total disk space on multiple servers.",
-    code: `$Servers = @("Server1","Server2","Server3")
-foreach ($Server in $Servers) {
-  Get-CimInstance Win32_LogicalDisk -ComputerName $Server \`
-    -Filter "DriveType=3" |
-  Select-Object PSComputerName,DeviceID,
-    @{N="FreeGB";E={[math]::Round($_.FreeSpace/1GB,2)}},
-    @{N="TotalGB";E={[math]::Round($_.Size/1GB,2)}}
-}`
+    num:2, icon:"🖥️", color:"var(--green)", title:"Get All Devices",
+    desc:"Retrieve all devices managed in Intune.",
+    code:`Get-MgDeviceManagementManagedDevice -All |\n  Select-Object DeviceName,OperatingSystem,\n    UserPrincipalName,ComplianceState`
   },
   {
-    title: "Check CPU and Memory Usage",
-    desc: "Get real-time CPU and memory usage.",
-    code: `Get-Counter '\\Processor(_Total)\\% Processor Time',
-         '\\Memory\\Available MBytes'`
+    num:3, icon:"🛡️", color:"var(--orange)", title:"Get Device Compliance Status",
+    desc:"Get compliance status of all devices.",
+    code:`Get-MgDeviceManagementManagedDevice -All |\n  Select-Object DeviceName,ComplianceState`
   },
   {
-    title: "List Stopped Services",
-    desc: "List all stopped services.",
-    code: `Get-Service |
-  Where-Object {$_.Status -eq "Stopped"} |
-  Sort-Object DisplayName`
+    num:4, icon:"📋", color:"var(--purple)", title:"Get All Device Configuration Profiles",
+    desc:"List all configuration profiles in Intune.",
+    code:`Get-MgDeviceManagementDeviceConfiguration -All |\n  Select-Object DisplayName,Description,\n    Platform,Technologies`
   },
   {
-    title: "Restart a Service",
-    desc: "Restart any service. Example: Restart-Service -Name 'Spooler'",
-    code: `param([string]$ServiceName)
-Restart-Service -Name $ServiceName -Force`
+    num:5, icon:"✅", color:"var(--blue)", title:"Get All Compliance Policies",
+    desc:"Retrieve all compliance policies.",
+    code:`Get-MgDeviceManagementDeviceCompliancePolicy -All |\n  Select-Object DisplayName,Description,\n    PlatformType`
   },
   {
-    title: "Check Windows Updates Installed Recently",
-    desc: "List latest installed Windows updates.",
-    code: `Get-HotFix |
-  Sort-Object InstalledOn -Descending |
-  Select-Object -First 20`
+    num:6, icon:"📦", color:"var(--pink)", title:"Get All Assigned Apps",
+    desc:"List all apps and their assignments.",
+    code:`Get-MgDeviceAppManagementMobileApp -All |\n  Select-Object DisplayName,IsAssigned`
   },
   {
-    title: "Get Event Logs (Errors Last 24 Hours)",
-    desc: "Fetch error events from System log.",
-    code: `Get-WinEvent -FilterHashtable @{
-  LogName="System"; Level=2;
-  StartTime=(Get-Date).AddDays(-1)
-} | Select-Object TimeCreated,Id,ProviderName,Message`
+    num:7, icon:"👤", color:"var(--teal)", title:"Get Intune Users",
+    desc:"Get all users from Intune.",
+    code:`Get-MgUser -All |\n  Select-Object DisplayName,UserPrincipalName,\n    AccountEnabled`
   },
   {
-    title: "Test Server Connectivity",
-    desc: "Ping multiple servers from a list.",
-    code: `$Servers = Get-Content C:\\Servers.txt
-foreach ($Server in $Servers) {
-  Test-Connection $Server -Count 2 -Quiet
-}`
+    num:8, icon:"📁", color:"var(--amber)", title:"Get All Device Categories",
+    desc:"Retrieve all device categories.",
+    code:`Get-MgDeviceManagementDeviceCategory -All |\n  Select-Object DisplayName,Description,ID`
   },
   {
-    title: "Check RDP Sessions",
-    desc: "Check currently logged-in users on local or remote server.",
-    code: `# Local
-query
-
-# Remote Server:
-query /server:ServerName`
+    num:9, icon:"🔒", color:"var(--indigo)", title:"Get All Conditional Access Policies",
+    desc:"List all Conditional Access policies.",
+    code:`Get-MgIdentityConditionalAccessPolicy -All |\n  Select-Object DisplayName,State,Conditions`
   },
   {
-    title: "Get Top 10 Processes by Memory",
-    desc: "Show top 10 processes by memory usage.",
-    code: `Get-Process |
-  Sort-Object WorkingSet -Descending |
-  Select-Object -First 10 Name,Id,
-    @{N="MemoryMB";E={[math]::Round($_.WorkingSet/1MB,2)}}`
+    num:10, icon:"🔄", color:"var(--sky)", title:"Get All Windows Update Rings",
+    desc:"List all Windows Update Rings.",
+    code:`Get-MgDeviceManagementWindowsUpdateRing -All |\n  Select-Object DisplayName,Description,\n    FeatureUpdates,QualityUpdates`
   },
   {
-    title: "Check Failed Login Attempts",
-    desc: "Check failed login attempts (last 24 hours).",
-    code: `Get-WinEvent -FilterHashtable @{
-  LogName="Security"; Id=4625;
-  StartTime=(Get-Date).AddDays(-1)
-}`
+    num:11, icon:"📊", color:"var(--lime)", title:"Get All Enrolled Devices Count",
+    desc:"Get total count of enrolled devices.",
+    code:`(Get-MgDeviceManagementManagedDevice -All).Count`
   },
   {
-    title: "VMware ESXi Host Ping Check",
-    desc: "Check connectivity to ESXi hosts.",
-    code: `$Hosts = @("esxi01","esxi02","esxi03")
-foreach ($Host in $Hosts) {
-  Test-Connection $Host -Count 2
-}`
+    num:12, icon:"🪟", color:"var(--blue)", title:"Get All Autopilot Devices",
+    desc:"List all Windows Autopilot devices.",
+    code:`Get-MgDeviceManagementWindowsAutopilotDevice -All |\n  Select-Object DisplayName,SerialNumber,\n    UserPrincipalName`
   },
   {
-    title: "Export AD Users",
-    desc: "Export all AD users to CSV.",
-    code: `Get-ADUser -Filter * -Properties Department,
-  EmailAddress |
-  Select-Object Name,SamAccountName,
-    Department,EmailAddress |
-  Export-Csv C:\\Reports\\ADUsers.csv -NoTypeInformation`
+    num:13, icon:"👥", color:"var(--magenta)", title:"Get All Groups",
+    desc:"Retrieve all groups (for assignments).",
+    code:`Get-MgGroup -All |\n  Select-Object DisplayName,GroupType,MailEnabled`
   },
   {
-    title: "Find Expiring Passwords",
-    desc: "Find users with password older than 60 days.",
-    code: `Import-Module ActiveDirectory
-Get-ADUser -Filter * -Properties PasswordLastSet |
-  Select-Object Name,
-    @{N="PasswordAgeDays";E={
-      ((Get-Date) - $_.PasswordLastSet).Days
-    }} |
-  Where-Object {$_.PasswordAgeDays -gt 60} |
-  Sort-Object PasswordAgeDays -Descending`
+    num:14, icon:"💾", color:"var(--gold)", title:"Export Devices to CSV",
+    desc:"Export all managed devices to a CSV file.",
+    code:`Get-MgDeviceManagementManagedDevice -All |\n  Select-Object DeviceName,OperatingSystem,\n    UserPrincipalName,ComplianceState |\n  Export-Csv -Path "Intune-Devices.csv" -NoTypeInformation`
   },
   {
-    title: "Daily Server Health Report",
-    desc: "Complete snapshot of server health.",
-    code: `$Report = @()
-$OS  = Get-CimInstance Win32_OperatingSystem
-$Svcs = Get-Service | Where-Object {$_.Status -eq "Stopped"}
-$Disks = Get-CimInstance Win32_LogicalDisk \`
-         -Filter "DriveType=3"
-
-$Report += [PSCustomObject]@{
-  Uptime    = $OS.LastBootUpTime
-  FreeMemGB = [math]::Round($OS.FreePhysicalMemory/1MB,2)
-  Disks     = ($Disks | Select-Object DeviceID,
-               @{N="FreeGB";E={
-                 [math]::Round($_.FreeSpace/1GB,2)
-               }}) -join " | "
-}
-$StoppedServices = ($Svcs |
-  Select-Object -ExpandProperty Name) -join ", "
-
-$Report | Format-List`
-  }
+    num:15, icon:"🪪", color:"var(--rose)", title:"Get Intune Licensed Users Count",
+    desc:"Get count of Intune licensed users.",
+    code:`(Get-MgUser -Filter "assignedLicenses/any(x:x/skuId\n  eq 'c1ec4a95-1f05-45b3-9129-fa3955a3d023')").Count`
+  },
 ];
 
-function escHtml(s) {
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function highlight(code) {
-  let s = escHtml(code);
+function highlight(code){
+  let s = esc(code);
   // comments
-  s = s.replace(/(#[^\n]*)/g, '<span class="cm">$1</span>');
+  s = s.replace(/(#[^\n]*)/g,'<span class="cm">$1</span>');
   // strings
-  s = s.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="str">$1</span>');
-  // keywords
-  s = s.replace(/\b(param|foreach|if|else|Where-Object|Select-Object|Sort-Object|Import-Module|return|in)\b/g, '<span class="kw">$1</span>');
-  // cmdlets
-  s = s.replace(/\b(Get-CimInstance|Get-Service|Get-Process|Get-HotFix|Get-WinEvent|Get-Counter|Get-Content|Get-ADUser|Get-Date|Restart-Service|Test-Connection|Export-Csv|Format-List|query)\b/g, '<span class="fn">$1</span>');
-  // variables
-  s = s.replace(/(\$[\w]+)/g, '<span class="var">$1</span>');
-  // numbers
-  s = s.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+  s = s.replace(/(&quot;[^&"]*?&quot;|'[^']*?')/g,'<span class="str">$1</span>');
+  // cmdlets (Get-Mg*, Connect-*, Export-*, Select-*, Import-*, Install-*)
+  s = s.replace(/\b(Get-Mg\w+|Connect-MgGraph|Export-Csv|Select-Object|Import-Module|Install-Module)\b/g,'<span class="fn">$1</span>');
+  // params
+  s = s.replace(/\s(-\w+)/g,' <span class="pm">$1</span>');
+  // pipe
+  s = s.replace(/(\|)/g,'<span class="op">$1</span>');
   return s;
 }
 
 const grid = document.getElementById('grid');
-scripts.forEach((s, i) => {
+scripts.forEach(s => {
   const card = document.createElement('div');
   card.className = 'card';
+  card.style.setProperty('--accent', s.color);
+
+  const codeId = 'code-' + s.num;
   card.innerHTML = `
-    <div class="card-header">
-      <div class="badge">${String(i+1).padStart(2,'0')}</div>
-      <div class="card-title">${escHtml(s.title)}</div>
+    <div class="card-head">
+      <div class="badge" style="background:${s.color}20;border:1px solid ${s.color};color:${s.color};">${String(s.num).padStart(2,'0')}</div>
+      <span class="card-icon">${s.icon}</span>
+      <span class="card-title" style="color:${s.color}">${esc(s.title)}</span>
     </div>
     <div class="card-body">
-      <p class="desc">${escHtml(s.desc)}</p>
-      <pre><button class="copy-btn" data-idx="${i}">copy</button>${highlight(s.code)}</pre>
+      <p class="card-desc">${esc(s.desc)}</p>
+      <pre id="${codeId}" data-raw="${esc(s.code)}"><button class="copy-btn" onclick="copyCode('${codeId}',this)">copy</button>${highlight(s.code)}</pre>
     </div>`;
   grid.appendChild(card);
 });
 
-document.querySelectorAll('.copy-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const idx = +btn.dataset.idx;
-    navigator.clipboard.writeText(scripts[idx].code).then(() => {
-      btn.textContent = 'copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
-    });
+function copyCode(id, btn){
+  const raw = document.getElementById(id).dataset.raw
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+  navigator.clipboard.writeText(raw).then(()=>{
+    btn.textContent='✓ copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');},1700);
   });
-});
+}
+window.copyCode = copyCode;
+
+function copyInstall(){
+  const text = `Install-Module Microsoft.Graph -Scope CurrentUser\nImport-Module Microsoft.Graph`;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('install-copy');
+    btn.textContent='✓ copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');},1700);
+  });
+}
+window.copyInstall = copyInstall;
 </script>
 </body>
 </html>
