@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Intune — Introduction, Architecture & Ecosystem</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#07090f;
+  --s1:#0b0f1c;
+  --s2:#0f1525;
+  --s3:#131a2e;
+  --s4:#0d1630;
+  --border:#1a2240;
+  --border2:#1e2d55;
+  --text:#d8e2ff;
+  --muted:#4a5a88;
+  --dim:#1a2240;
+
+  --blue:#4a9eff;
+  --blue2:#2979ff;
+  --cyan:#00e5ff;
+  --green:#00e676;
+  --amber:#ffca28;
+  --orange:#ff7043;
+  --purple:#ce93d8;
+  --red:#ff5252;
+  --teal:#1de9b6;
+  --sky:#40c4ff;
+  --pink:#f48fb1;
+  --lime:#aed581;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:2.5rem 1rem 5rem;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+header{text-align:center;margin-bottom:2.5rem;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:.45rem;
+}
+.page-badge{
+  display:inline-block;
+  background:var(--s3);border:1px solid var(--blue2);
+  border-radius:8px;padding:.25rem .8rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;color:var(--blue);
+  margin-bottom:.5rem;margin-left:.5rem;
+  vertical-align:middle;
+}
+header h1{
+  font-size:clamp(1.4rem,4vw,2.4rem);
+  font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;
+}
+header h1 .hl{color:var(--cyan);}
+header p{margin-top:.5rem;color:var(--muted);font-size:.8rem;font-style:italic;}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.row{
+  display:grid;gap:1rem;
+  max-width:1200px;margin:0 auto 1rem;
+}
+.col2{grid-template-columns:1fr 1fr;}
+.col3{grid-template-columns:1fr 1fr 1fr;}
+.col12{grid-template-columns:1.1fr .9fr;}
+.col21{grid-template-columns:.9fr 1.1fr;}
+.col1{grid-template-columns:1fr;}
+@media(max-width:760px){
+  .col2,.col3,.col12,.col21{grid-template-columns:1fr;}
+}
+
+/* ── CARD ────────────────────────────────────── */
+.card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.card-head{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.7rem 1.1rem;border-bottom:1px solid var(--border);
+  background:var(--s2);
+}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:.63rem;font-weight:700;color:var(--muted);}
+.card-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;}
+.card-body{padding:1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.75rem;}
+
+/* ── BULLETS ─────────────────────────────────── */
+.bullets{display:flex;flex-direction:column;gap:.4rem;}
+.bullet{display:flex;align-items:flex-start;gap:.5rem;font-size:.8rem;color:#8fa3cc;line-height:1.5;}
+.bullet .dot{color:var(--blue);flex-shrink:0;margin-top:.1rem;}
+
+/* ── CHECKLIST ───────────────────────────────── */
+.checks{display:flex;flex-direction:column;gap:.35rem;}
+.chk{display:flex;align-items:flex-start;gap:.45rem;font-size:.78rem;color:#8fa3cc;line-height:1.4;}
+.chk-icon{color:var(--green);flex-shrink:0;font-size:.8rem;margin-top:.1rem;}
+
+/* ── TIMELINE ────────────────────────────────── */
+.timeline{display:flex;flex-direction:column;gap:.5rem;}
+.tl-item{display:flex;align-items:flex-start;gap:.75rem;}
+.tl-year{
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;
+  color:var(--cyan);min-width:2.8rem;flex-shrink:0;margin-top:.1rem;
+}
+.tl-arrow{color:var(--blue);flex-shrink:0;margin-top:.1rem;}
+.tl-text{font-size:.78rem;color:#8fa3cc;line-height:1.4;}
+
+/* ── KEY BENEFITS ────────────────────────────── */
+.benefits{
+  background:var(--s3);border:1px solid var(--amber);
+  border-radius:8px;padding:.75rem 1rem;
+}
+.benefits-title{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--amber);margin-bottom:.5rem;
+  display:flex;align-items:center;gap:.4rem;
+}
+
+/* ── COMPARISON TABLE ────────────────────────── */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.73rem;}
+.cmp-table th{
+  padding:.35rem .65rem;
+  background:var(--s3);border:1px solid var(--border2);
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  text-align:left;
+}
+.cmp-table td{
+  padding:.32rem .65rem;border:1px solid var(--border);
+  color:#8fa3cc;line-height:1.4;vertical-align:top;
+}
+.cmp-table tr:hover td{background:rgba(74,158,255,.04);}
+.cmp-table .row-label{color:var(--text);font-weight:600;font-size:.72rem;}
+.tag-sccm{color:var(--orange);}
+.tag-intune{color:var(--cyan);}
+.co-note{
+  display:flex;align-items:center;gap:.45rem;
+  font-size:.75rem;color:var(--amber);margin-top:.4rem;
+}
+
+/* ── MEM PORTAL ──────────────────────────────── */
+.mem-url{
+  display:flex;align-items:center;gap:.6rem;
+  background:var(--s3);border:1px solid var(--border2);
+  border-radius:8px;padding:.55rem .9rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--cyan);
+}
+.includes-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:.3rem .8rem;
+}
+.from-portal{display:flex;flex-direction:column;gap:.3rem;}
+
+/* ── ARCHITECTURE ────────────────────────────── */
+.arch-center{
+  background:linear-gradient(135deg,#0d1835,#1a2a55);
+  border:2px solid var(--blue2);border-radius:50%;
+  width:130px;height:130px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;flex-shrink:0;
+  box-shadow:0 0 30px rgba(41,121,255,.25);
+}
+.arch-center .icon{font-size:2rem;}
+.arch-center .label{font-size:.72rem;font-weight:700;color:var(--blue);margin-top:.2rem;}
+
+.arch-layout{
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;
+}
+.arch-col{display:flex;flex-direction:column;gap:.5rem;flex:1;min-width:130px;}
+.arch-col.right{align-items:flex-start;}
+.arch-col.left{align-items:flex-end;}
+
+.arch-node{
+  background:var(--s3);border:1px solid var(--border2);
+  border-radius:8px;padding:.5rem .8rem;
+  display:flex;align-items:center;gap:.5rem;
+  font-size:.72rem;color:var(--text);line-height:1.35;
+  width:100%;
+}
+.arch-node .nicon{font-size:1rem;flex-shrink:0;}
+.arch-node .nlabel{color:var(--text);font-weight:600;font-size:.72rem;}
+.arch-node .nsub{color:var(--muted);font-size:.65rem;}
+
+.arch-arrows{
+  display:flex;flex-direction:column;align-items:center;
+  gap:.3rem;color:var(--muted);font-size:.85rem;
+}
+
+/* ── ECOSYSTEM ────────────────────────────────── */
+.eco-list{display:flex;flex-direction:column;gap:.55rem;}
+.eco-item{display:flex;align-items:flex-start;gap:.65rem;font-size:.78rem;color:#8fa3cc;line-height:1.45;}
+.eco-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem;}
+.eco-name{color:var(--text);font-weight:600;font-size:.78rem;}
+
+/* ── SCOPE ────────────────────────────────────── */
+.scope-list{display:grid;grid-template-columns:1fr 1fr;gap:.4rem .8rem;}
+@media(max-width:500px){.scope-list{grid-template-columns:1fr;}}
+
+/* ── WHY INTUNE ──────────────────────────────── */
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;}
+@media(max-width:640px){.why-grid{grid-template-columns:1fr 1fr;}}
+.why-card{
+  background:var(--s3);border:1px solid var(--border2);
+  border-radius:8px;padding:.6rem .7rem;text-align:center;
+}
+.why-card .wicon{font-size:1.3rem;}
+.why-card .wlabel{font-size:.68rem;font-weight:600;color:var(--text);margin-top:.3rem;line-height:1.3;}
+
+/* ── QUICK TIP ────────────────────────────────── */
+.tip-box{
+  background:linear-gradient(135deg,#0d1835,#101e3a);
+  border:1px solid var(--amber);border-radius:10px;
+  padding:.85rem 1rem;display:flex;gap:.75rem;align-items:flex-start;
+}
+.tip-icon{font-size:1.4rem;flex-shrink:0;}
+.tip-text{font-size:.8rem;color:#a0b4d8;line-height:1.55;}
+.tip-text strong{color:var(--amber);}
+
+/* ── BANNER ──────────────────────────────────── */
+.banner{
+  max-width:1200px;margin:1rem auto 0;
+  background:linear-gradient(135deg,#0a1535,#0d1e42);
+  border:1px solid var(--blue2);border-left:4px solid var(--blue);
+  border-radius:12px;padding:1rem 1.5rem;
+  display:flex;align-items:flex-start;gap:.75rem;
+}
+.banner-icon{font-size:1.3rem;flex-shrink:0;margin-top:.05rem;}
+.banner-text{font-size:.84rem;color:#a0b4d8;line-height:1.6;font-style:italic;}
+.banner-text strong{color:var(--blue);font-style:normal;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Microsoft Intune Fundamentals <span class="page-badge">Page 5</span></div>
+  <h1>Introduction, <span class="hl">Architecture</span> &amp; Ecosystem</h1>
+  <p>Core Administration Overview · Anuradha Kumari · CloudEngineerHub.Com</p>
+</header>
+
+<!-- ROW 1: What is Intune + History -->
+<div class="row col12">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">1.</span>
+      <span class="card-title" style="color:var(--blue);">What is Microsoft Intune?</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Microsoft Intune is a <strong style="color:var(--cyan)">cloud-native Mobile Device Management (MDM) and Mobile Application Management (MAM)</strong> solution.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>It is part of <strong style="color:var(--cyan)">Microsoft Endpoint Manager (MEM)</strong> suite.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Helps organizations <strong style="color:var(--cyan)">securely manage and protect devices, apps, and data</strong> from the cloud.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Enables IT admins to deliver the right <strong style="color:var(--cyan)">policies, apps and configurations</strong> to the right devices and users.</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.6rem .9rem;margin-top:.2rem;">
+        <span style="font-size:1.5rem;">☁️</span>
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--blue);">Microsoft Intune</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:.15rem;">Manage Devices and Apps from the Cloud</div>
+        </div>
+        <span style="font-size:1.2rem;margin-left:auto;">🖥️📱</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">2.</span>
+      <span class="card-title" style="color:var(--green);">History of Intune</span>
+    </div>
+    <div class="card-body">
+      <div class="timeline">
+        <div class="tl-item"><span class="tl-year">2011</span><span class="tl-arrow">→</span><span class="tl-text">Intune Service started</span></div>
+        <div class="tl-item"><span class="tl-year">2014</span><span class="tl-arrow">→</span><span class="tl-text">Microsoft acquired Intune</span></div>
+        <div class="tl-item"><span class="tl-year">2016</span><span class="tl-arrow">→</span><span class="tl-text">Rebranded as Microsoft Intune</span></div>
+        <div class="tl-item"><span class="tl-year">2017+</span><span class="tl-arrow">→</span><span class="tl-text">Deep integration with Azure AD and Office 365</span></div>
+        <div class="tl-item"><span class="tl-year">2020+</span><span class="tl-arrow">→</span><span class="tl-text">Core part of <strong style="color:var(--cyan)">Microsoft Endpoint Manager (MEM)</strong> suite</span></div>
+      </div>
+      <div style="font-size:.75rem;color:var(--teal);font-style:italic;text-align:center;margin-top:.2rem;">Continuously evolving with AI, Zero Trust, and advanced security.</div>
+      <div class="benefits">
+        <div class="benefits-title">📌 Key Benefits</div>
+        <div class="checks">
+          <div class="chk"><span class="chk-icon">☑</span><span>Cloud-first</span></div>
+          <div class="chk"><span class="chk-icon">☑</span><span>Easy to use</span></div>
+          <div class="chk"><span class="chk-icon">☑</span><span>Scalable</span></div>
+          <div class="chk"><span class="chk-icon">☑</span><span>Secure</span></div>
+          <div class="chk"><span class="chk-icon">☑</span><span>Always up-to-date</span></div>
+          <div class="chk"><span class="chk-icon">☑</span><span>Integration with Microsoft ecosystem</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Intune vs SCCM + MEM Portal -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">3.</span>
+      <span class="card-title" style="color:var(--amber);">Intune vs SCCM (ConfigMgr)</span>
+    </div>
+    <div class="card-body">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th style="color:var(--muted);"></th>
+            <th style="color:var(--orange);">SCCM (ConfigMgr)</th>
+            <th style="color:var(--cyan);">Intune</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="row-label">Deployment</td><td class="tag-sccm">On-Premises</td><td class="tag-intune">Cloud</td></tr>
+          <tr><td class="row-label">Management</td><td class="tag-sccm">LAN-based</td><td class="tag-intune">Internet-based</td></tr>
+          <tr><td class="row-label">Use Case</td><td class="tag-sccm">Traditional Devices</td><td class="tag-intune">Modern Devices</td></tr>
+          <tr><td class="row-label">Updates</td><td class="tag-sccm">Manual / Scheduled</td><td class="tag-intune">Automatic</td></tr>
+          <tr><td class="row-label">Infrastructure</td><td class="tag-sccm">Servers, DB, etc.</td><td class="tag-intune">No Infra Required</td></tr>
+          <tr><td class="row-label">Access</td><td class="tag-sccm">Internal Network</td><td class="tag-intune">Anywhere (Cloud)</td></tr>
+          <tr><td class="row-label">Best For</td><td class="tag-sccm">Large On-prem Infra</td><td class="tag-intune">Cloud &amp; Remote Workforce</td></tr>
+        </tbody>
+      </table>
+      <div class="co-note"><span>⭐</span><span>Both can work together using <strong>Co-management</strong>.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">4.</span>
+      <span class="card-title" style="color:var(--cyan);">Microsoft Endpoint Manager (MEM) Portal</span>
+    </div>
+    <div class="card-body">
+      <div class="mem-url">
+        <span>🌐</span>
+        <span>https://endpoint.microsoft.com</span>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:130px;">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--blue);margin-bottom:.45rem;">Includes:</div>
+          <div class="checks">
+            <div class="chk"><span class="chk-icon">☑</span><span>Intune</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Configuration Manager (SCCM)</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Azure AD</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Endpoint Analytics</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Windows 365</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Autopilot</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>And more…</span></div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:130px;">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--blue);margin-bottom:.45rem;">From MEM portal, you can:</div>
+          <div class="checks">
+            <div class="chk"><span class="chk-icon">☑</span><span>Enroll devices</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Deploy &amp; manage apps</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Apply policies</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Monitor compliance</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Run reports</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Troubleshoot issues</span></div>
+            <div class="chk"><span class="chk-icon">☑</span><span>Manage users and groups</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 3: Architecture + Ecosystem -->
+<div class="row col21">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">5.</span>
+      <span class="card-title" style="color:var(--purple);">Intune Architecture Overview</span>
+    </div>
+    <div class="card-body">
+      <div class="arch-layout">
+        <!-- LEFT nodes -->
+        <div class="arch-col left">
+          <div class="arch-node">
+            <span class="nicon">👤</span>
+            <div><div class="nlabel">Users / Admins</div><div class="nsub">Access MEM Portal<br>Manage &amp; Monitor</div></div>
+          </div>
+          <div class="arch-node">
+            <span class="nicon">🖥️</span>
+            <div><div class="nlabel">Devices</div><div class="nsub">Windows, iOS, Android,<br>macOS, Linux</div></div>
+          </div>
+          <div class="arch-node">
+            <span class="nicon">📦</span>
+            <div><div class="nlabel">Apps</div><div class="nsub">Microsoft 365 Apps,<br>LOB Apps, Win32 Apps</div></div>
+          </div>
+        </div>
+
+        <!-- CENTER -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:.3rem;">
+            <div class="arch-node" style="min-width:130px;border-color:var(--blue);flex-direction:column;text-align:center;padding:.6rem;">
+              <span style="font-size:.75rem;font-weight:700;color:var(--sky);">Azure Active Directory</span>
+              <span style="font-size:.65rem;color:var(--muted);">(Identity &amp; Access)</span>
+            </div>
+          </div>
+          <div style="color:var(--muted);font-size:.9rem;">↕️</div>
+          <div class="arch-center">
+            <div class="icon">☁️</div>
+            <div class="label">Microsoft<br>Intune</div>
+          </div>
+          <div style="color:var(--muted);font-size:.9rem;">↕️</div>
+          <div class="arch-node" style="min-width:130px;border-color:var(--red);flex-direction:column;text-align:center;padding:.6rem;">
+            <span style="font-size:.72rem;font-weight:700;color:var(--red);">Microsoft Defender</span>
+            <span style="font-size:.63rem;color:var(--muted);">for Endpoint (Threat Protection)</span>
+          </div>
+        </div>
+
+        <!-- RIGHT nodes -->
+        <div class="arch-col right">
+          <div class="arch-node" style="border-color:var(--orange);">
+            <span class="nicon">🏢</span>
+            <div><div class="nlabel" style="color:var(--orange);">Microsoft 365</div><div class="nsub">Productivity Suite</div></div>
+          </div>
+          <div class="arch-node" style="border-color:var(--teal);">
+            <span class="nicon">📊</span>
+            <div><div class="nlabel" style="color:var(--teal);">Endpoint Analytics</div><div class="nsub">Insights &amp; Health</div></div>
+          </div>
+          <div class="arch-node" style="border-color:var(--sky);">
+            <span class="nicon">🪟</span>
+            <div><div class="nlabel" style="color:var(--sky);">Windows Autopilot</div><div class="nsub">Zero-touch Provisioning</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">6.</span>
+      <span class="card-title" style="color:var(--teal);">Intune Ecosystem</span>
+    </div>
+    <div class="card-body">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:.4rem;">Key Integrations</div>
+      <div class="eco-list">
+        <div class="eco-item"><span class="eco-icon">🔷</span><div><span class="eco-name">Azure AD</span> — Identity, Conditional Access, Device Authentication</div></div>
+        <div class="eco-item"><span class="eco-icon">🛡️</span><div><span class="eco-name">Microsoft Defender</span> — Advanced threat protection &amp; security</div></div>
+        <div class="eco-item"><span class="eco-icon">🏢</span><div><span class="eco-name">Microsoft 365</span> — App protection, compliance, productivity tools</div></div>
+        <div class="eco-item"><span class="eco-icon">🪟</span><div><span class="eco-name">Autopilot</span> — Zero-touch device enrollment</div></div>
+        <div class="eco-item"><span class="eco-icon">📊</span><div><span class="eco-name">Endpoint Analytics</span> — Device health &amp; performance insights</div></div>
+        <div class="eco-item"><span class="eco-icon">⚡</span><div><span class="eco-name">Power Platform</span> — Automate tasks &amp; workflows</div></div>
+        <div class="eco-item"><span class="eco-icon">🔔</span><div><span class="eco-name">ServiceNow / ITSM</span> — Ticketing &amp; incident management</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 4: Management Scope + Cloud MDM Benefits -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">7.</span>
+      <span class="card-title" style="color:var(--sky);">Intune Management Scope</span>
+    </div>
+    <div class="card-body">
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem;">Intune can manage:</div>
+      <div class="scope-list">
+        <div class="bullet"><span class="dot" style="color:var(--blue);">●</span><span><strong style="color:var(--cyan);">Mobile Devices</strong> — Phones &amp; Tablets</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--green);">●</span><span><strong style="color:var(--lime);">PCs &amp; Laptops</strong> — Windows, macOS</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--orange);">●</span><span><strong style="color:var(--orange);">Virtual Desktops</strong> — Windows 365</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--purple);">●</span><span><strong style="color:var(--purple);">Applications</strong> — Store, LOB, Win32</span></div>
+        <div class="bullet"><span class="dot" style="color:var(--red);">●</span><span><strong style="color:var(--red);">Data &amp; Access</strong> — Compliance &amp; Protection</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">8.</span>
+      <span class="card-title" style="color:var(--lime);">Cloud-Native MDM Benefits</span>
+    </div>
+    <div class="card-body" style="flex-direction:row;gap:1rem;align-items:center;flex-wrap:wrap;">
+      <div class="bullets" style="flex:1;min-width:180px;">
+        <div class="bullet"><span class="dot">●</span><span>No on-prem infrastructure</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Global scale &amp; high availability</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Manage from anywhere, anytime</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Faster feature updates</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Lower cost &amp; simplified operations</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Built-in security &amp; compliance</span></div>
+      </div>
+      <div style="text-align:center;flex-shrink:0;">
+        <div style="background:linear-gradient(135deg,#0d1835,#1a2a50);border:2px solid var(--blue2);border-radius:12px;padding:1rem 1.25rem;">
+          <div style="font-size:1.8rem;font-weight:800;color:var(--cyan);line-height:1;">100%</div>
+          <div style="font-size:.9rem;font-weight:700;color:var(--blue);margin-top:.2rem;">CLOUD</div>
+          <div style="font-size:1.2rem;margin-top:.3rem;">☁️ 🖥️ 📱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 5: Why Intune + Quick Tip -->
+<div class="row col2">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title" style="color:var(--blue);">Why Intune is Important?</span>
+    </div>
+    <div class="card-body">
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="wicon">🛡️</div>
+          <div class="wlabel">Secure &amp; Protect Every Device</div>
+        </div>
+        <div class="why-card">
+          <div class="wicon">👥</div>
+          <div class="wlabel">Improve User Productivity</div>
+        </div>
+        <div class="why-card">
+          <div class="wicon">📉</div>
+          <div class="wlabel">Reduce IT Overhead &amp; Cost</div>
+        </div>
+        <div class="why-card">
+          <div class="wicon">🤖</div>
+          <div class="wlabel">Future-ready with AI &amp; Automation</div>
+        </div>
+        <div class="why-card" style="grid-column:span 2;">
+          <div class="wicon">🌍</div>
+          <div class="wlabel">Support Modern Hybrid &amp; Remote Workforce</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title" style="color:var(--amber);">💡 Quick Tip</span>
+    </div>
+    <div class="card-body" style="justify-content:center;">
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <div class="tip-text">
+          Think of Intune as your <strong>cloud IT Command Center</strong> — Secure, Smart &amp; Always Available! It brings together device management, app deployment, security policies, and compliance monitoring all in one place.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remember Banner -->
+<div class="banner">
+  <span class="banner-icon">⭐</span>
+  <div class="banner-text">
+    <strong>Remember:</strong> Intune is not just a tool, it's a <strong>Modern Management Platform for the Future Workplace</strong>.
+  </div>
+</div>
+
+</body>
+</html>
