@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Intune — Win32 App Deployment</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#07090f;
+  --s1:#0b0f1c;
+  --s2:#0f1525;
+  --s3:#131a2e;
+  --border:#1a2240;
+  --border2:#1e2d55;
+  --text:#d8e2ff;
+  --muted:#4a5a88;
+  --dim:#1a2240;
+
+  --blue:#4a9eff;
+  --blue2:#2979ff;
+  --cyan:#00e5ff;
+  --green:#00e676;
+  --amber:#ffca28;
+  --orange:#ff7043;
+  --purple:#ce93d8;
+  --red:#ff5252;
+  --teal:#1de9b6;
+  --sky:#40c4ff;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:2.5rem 1rem 5rem;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+header{text-align:center;margin-bottom:2.5rem;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--blue);
+  margin-bottom:.5rem;
+}
+header h1{
+  font-size:clamp(1.8rem,5vw,3rem);
+  font-weight:800;
+  letter-spacing:-.01em;
+  line-height:1.1;
+  color:#fff;
+}
+header h1 .hl{color:var(--blue);}
+header p{
+  margin-top:.6rem;
+  color:var(--muted);
+  font-size:.88rem;
+  font-style:italic;
+}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.layout.three{grid-template-columns:1fr 1fr 1fr;}
+.layout.full{grid-template-columns:1fr;}
+@media(max-width:760px){
+  .layout,.layout.three{grid-template-columns:1fr;}
+}
+
+/* ── CARDS ──────────────────────────────────── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.card.span2{grid-column:span 2;}
+@media(max-width:760px){.card.span2{grid-column:span 1;}}
+
+.card-head{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.7rem 1.1rem;
+  border-bottom:1px solid var(--border);
+  background:var(--s2);
+}
+.sec-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;
+  font-weight:700;
+  color:var(--muted);
+  min-width:1.1rem;
+}
+.card-title{
+  font-size:.78rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+.card-body{padding:1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.8rem;}
+
+/* ── BULLETS ─────────────────────────────────── */
+.bullets{display:flex;flex-direction:column;gap:.45rem;}
+.bullet{
+  display:flex;align-items:flex-start;gap:.5rem;
+  font-size:.8rem;color:#8fa3cc;line-height:1.5;
+}
+.bullet .dot{color:var(--blue);flex-shrink:0;margin-top:.1rem;}
+
+/* ── FLOW ────────────────────────────────────── */
+.flow{
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:.3rem;padding:.5rem 0;
+}
+.flow-step{
+  background:var(--s3);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:.45rem .75rem;
+  text-align:center;
+  min-width:90px;
+  flex:1;
+}
+.flow-step .ficon{font-size:1.1rem;}
+.flow-step .flabel{font-size:.67rem;font-weight:600;color:var(--blue);margin-top:.2rem;line-height:1.3;}
+.flow-arrow{color:var(--muted);font-size:1.1rem;flex-shrink:0;}
+
+/* ── STEPS ───────────────────────────────────── */
+.steps{display:flex;flex-direction:column;gap:.4rem;}
+.step-item{
+  display:flex;align-items:flex-start;gap:.55rem;
+  font-size:.8rem;color:#8fa3cc;line-height:1.5;
+}
+.step-n{
+  background:var(--blue2);
+  color:#fff;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;font-weight:700;
+  width:1.3rem;height:1.3rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:.1rem;
+}
+
+/* ── CODE ────────────────────────────────────── */
+pre{
+  background:#040609;
+  border:1px solid var(--border2);
+  border-radius:7px;
+  padding:.6rem .9rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  line-height:1.7;
+  color:var(--cyan);
+  overflow-x:auto;
+  position:relative;
+}
+.copy-btn{
+  position:absolute;top:.35rem;right:.35rem;
+  background:var(--border2);border:none;
+  color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;padding:.2rem .45rem;border-radius:3px;
+  cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s;
+}
+pre:hover .copy-btn{opacity:1;}
+.copy-btn:hover{background:var(--blue);color:#fff;}
+.copy-btn.copied{background:var(--green);color:#000;opacity:1;}
+
+/* ── SETTINGS SIDEBAR ────────────────────────── */
+.settings-grid{display:flex;flex-direction:column;gap:.7rem;}
+.setting-group{}
+.setting-label{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--amber);margin-bottom:.35rem;
+}
+.setting-items{display:flex;flex-direction:column;gap:.2rem;}
+.setting-item{
+  display:flex;align-items:flex-start;gap:.4rem;
+  font-size:.73rem;color:#8fa3cc;line-height:1.4;
+}
+.setting-item .dot{color:var(--blue);flex-shrink:0;}
+
+/* ── DETECTION TABLE ─────────────────────────── */
+.det-table{width:100%;border-collapse:collapse;font-size:.74rem;}
+.det-table th{
+  padding:.35rem .7rem;
+  background:var(--s3);
+  border:1px solid var(--border2);
+  color:var(--blue);
+  font-size:.65rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  text-align:left;
+}
+.det-table td{
+  padding:.35rem .7rem;
+  border:1px solid var(--border);
+  color:#8fa3cc;vertical-align:top;line-height:1.45;
+}
+.det-table tr:hover td{background:rgba(74,158,255,.05);}
+.type-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;font-weight:700;
+  padding:.1rem .4rem;border-radius:4px;
+  white-space:nowrap;
+}
+
+/* ── INSTALL PROCESS VERTICAL FLOW ─────────────── */
+.vflow{display:flex;flex-direction:column;gap:.5rem;}
+.vflow-item{
+  display:flex;align-items:center;gap:.75rem;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:.55rem .85rem;
+}
+.vflow-icon{font-size:1.1rem;flex-shrink:0;}
+.vflow-label{font-size:.8rem;color:var(--text);}
+.vflow-arrow{text-align:center;color:var(--muted);font-size:.9rem;line-height:1;}
+
+/* ── ERROR CODES ─────────────────────────────── */
+.error-list{display:flex;flex-direction:column;gap:.4rem;}
+.error-item{
+  display:flex;align-items:flex-start;gap:.75rem;
+  font-size:.78rem;line-height:1.4;
+}
+.error-code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.69rem;font-weight:600;
+  color:var(--red);white-space:nowrap;flex-shrink:0;min-width:9rem;
+}
+.error-desc{color:#8fa3cc;}
+
+/* ── CHECKLIST ───────────────────────────────── */
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:.4rem .8rem;}
+@media(max-width:500px){.checklist{grid-template-columns:1fr;}}
+.check-item{
+  display:flex;align-items:flex-start;gap:.45rem;
+  font-size:.78rem;color:#8fa3cc;line-height:1.4;
+}
+.check-icon{color:var(--green);flex-shrink:0;font-size:.85rem;margin-top:.05rem;}
+
+/* ── REMEMBER BANNER ─────────────────────────── */
+.banner{
+  max-width:1200px;margin:1rem auto 0;
+  background:linear-gradient(135deg,#0a1535,#0d1e42);
+  border:1px solid var(--blue2);
+  border-left:4px solid var(--blue);
+  border-radius:12px;
+  padding:1rem 1.5rem;
+  display:flex;align-items:flex-start;gap:.75rem;
+}
+.banner-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.banner-text{font-size:.84rem;color:#a0b4d8;line-height:1.6;}
+.banner-text strong{color:var(--blue);}
+
+/* ── SECTION SPACER ──────────────────────────── */
+.spacer{max-width:1200px;margin:.4rem auto;
+  font-size:.65rem;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Microsoft Intune Fundamentals</div>
+  <h1><span class="hl">Win32</span> App Deployment</h1>
+  <p>Intune Fundamentals · Win32 App Deployment Overview</p>
+</header>
+
+<!-- ROW 1: What is Win32 + Deployment Flow -->
+<div class="layout" style="max-width:1200px;margin:0 auto 1rem;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">1.</span>
+      <span class="card-title" style="color:var(--blue);">What is Win32 App?</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Win32 apps are traditional Windows applications (<strong style="color:var(--cyan)">EXE, MSI, MSP, BAT, CMD, PowerShell</strong>, etc.) packaged and deployed through Microsoft Intune.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>These apps are installed on <strong style="color:var(--cyan)">Windows devices managed by Intune</strong>.</span></div>
+      </div>
+      <div style="text-align:center;padding:.5rem 0;">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;background:var(--s3);border:2px solid var(--blue);border-radius:10px;font-size:1.5rem;">🪟</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--blue);margin-top:.3rem;">.EXE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">2.</span>
+      <span class="card-title" style="color:var(--green);">Win32 App Deployment Flow</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="ficon">📦</div><div class="flabel">Package Win32 App</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">☁️</div><div class="flabel">Upload to Intune</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">🪟</div><div class="flabel">Create Win32 App</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">👥</div><div class="flabel">Assign to Users/Devices</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">✅</div><div class="flabel">App Installs on Target Device</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Package Creation + Create in Intune -->
+<div class="layout" style="max-width:1200px;margin:0 auto 1rem;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">3.</span>
+      <span class="card-title" style="color:var(--amber);">Win32 App Package Creation</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Use <strong style="color:var(--amber)">Microsoft Intune Win32 Content Prep Tool</strong> to package the application.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>The tool converts the folder into <strong style="color:var(--cyan)">.intunewin</strong> file.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>This file is uploaded to Intune.</span></div>
+      </div>
+
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1rem;">
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.6rem;">Using Intune Win32 Content Prep Tool</div>
+        <div class="steps">
+          <div class="step-item"><div class="step-n">1</div><span>Download <strong style="color:var(--cyan)">IntuneWinAppUtil.exe</strong></span></div>
+          <div class="step-item"><div class="step-n">2</div><span>Create a folder and place all app files.</span></div>
+          <div class="step-item"><div class="step-n">3</div><span>Open CMD in that folder.</span></div>
+          <div class="step-item"><div class="step-n">4</div><span>Run the command:</span></div>
+        </div>
+        <pre style="margin-top:.5rem;" data-raw='IntuneWinAppUtil.exe -c "C:\AppFolder" -s Setup.exe -o "C:\OutputFolder"'><button class="copy-btn" onclick="cp(this)">copy</button>IntuneWinAppUtil.exe -c "C:\AppFolder" -s Setup.exe<br>  -o "C:\OutputFolder"</pre>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.4rem;">Output: <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace;">.intunewin</span> file</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">4.</span>
+      <span class="card-title" style="color:var(--cyan);">Create Win32 App in Intune</span>
+    </div>
+    <div class="card-body" style="flex-direction:row;gap:1rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;">
+        <div class="steps">
+          <div class="step-item"><div class="step-n">1</div><span>Go to: <strong style="color:var(--cyan)">Apps &gt; All Apps &gt; Add</strong></span></div>
+          <div class="step-item"><div class="step-n">2</div><span>Select: <strong style="color:var(--cyan)">Windows app (Win32)</strong></span></div>
+          <div class="step-item"><div class="step-n">3</div><span>Upload the <strong style="color:var(--cyan)">.intunewin</strong> file</span></div>
+          <div class="step-item"><div class="step-n">4</div><span>Enter App Information:</span></div>
+        </div>
+        <div class="bullets" style="margin-top:.5rem;padding-left:.5rem;">
+          <div class="bullet"><span class="dot">·</span><span>Name</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Description</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Publisher</span></div>
+          <div class="bullet"><span class="dot">·</span><span>App Version</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Category</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Install experience</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Restart behavior</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Detection rules</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Requirements</span></div>
+          <div class="bullet"><span class="dot">·</span><span>Dependencies (if any)</span></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:160px;" class="settings-grid">
+        <div class="setting-group">
+          <div class="setting-label">Install Command Examples</div>
+          <div class="setting-items">
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--cyan);">setup.exe /silent</span></div>
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--cyan);">setup.exe /S</span></div>
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--cyan);">msiexec /i setup.msi /qn</span></div>
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--cyan);">install.cmd /silent</span></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-label">Uninstall Command Examples</div>
+          <div class="setting-items">
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--orange);">setup.exe /uninstall /silent</span></div>
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--orange);">msiexec /x {ProductCode} /qn</span></div>
+            <div class="setting-item"><span class="dot">·</span><span style="font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--orange);">uninstall.cmd /silent</span></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-label">Install Behavior</div>
+          <div class="setting-items">
+            <div class="setting-item"><span class="dot">·</span><span>System</span></div>
+            <div class="setting-item"><span class="dot">·</span><span>User</span></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-label">Device Restart Behavior</div>
+          <div class="setting-items">
+            <div class="setting-item"><span class="dot">·</span><span>App install may force restart</span></div>
+            <div class="setting-item"><span class="dot">·</span><span>App install may force restart (Suppress if needed)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 3: Detection + Assign + Install Process -->
+<div class="layout three" style="max-width:1200px;margin:0 auto 1rem;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">5.</span>
+      <span class="card-title" style="color:var(--purple);">Detection Rules</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Detection rules help Intune identify if the app is already installed.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>If detected, the app will <strong style="color:var(--red)">not</strong> be reinstalled.</span></div>
+      </div>
+      <table class="det-table">
+        <thead>
+          <tr><th>Rule Type</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="type-badge" style="background:#1a2a50;color:var(--blue);">File</span></td>
+            <td>File or folder exists<br><span style="font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--cyan);">C:\Program Files\App\app.exe</span></td>
+          </tr>
+          <tr>
+            <td><span class="type-badge" style="background:#1a2a50;color:var(--blue);">File</span></td>
+            <td>File version<br><span style="font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--cyan);">app.exe version >= 1.0.0.0</span></td>
+          </tr>
+          <tr>
+            <td><span class="type-badge" style="background:#2a1a50;color:var(--purple);">Registry</span></td>
+            <td>Registry key exists<br><span style="font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--cyan);">HKLM\SOFTWARE\Company\App</span></td>
+          </tr>
+          <tr>
+            <td><span class="type-badge" style="background:#1a3020;color:var(--green);">MSI</span></td>
+            <td>Product Code<br><span style="font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--cyan);">{12345678-1234-1234-1234-123456789AB}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">6.</span>
+      <span class="card-title" style="color:var(--teal);">Assign Win32 App</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>After creating the app, assign it to users or devices.</span></div>
+        <div class="bullet"><span class="dot">●</span><span>Go to: <strong style="color:var(--teal)">Apps &gt; Select the app &gt; Assignments</strong></span></div>
+        <div class="bullet"><span class="dot">●</span><span>Choose:</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr;gap:.35rem;padding-left:.5rem;">
+        <div class="step-item"><div class="step-n" style="background:var(--green);color:#000;">✓</div><span>Required</span></div>
+        <div class="step-item"><div class="step-n" style="background:var(--blue);">A</div><span>Available for enrolled devices</span></div>
+        <div class="step-item"><div class="step-n" style="background:var(--red);">U</div><span>Uninstall</span></div>
+        <div class="step-item"><div class="step-n" style="background:var(--muted);">W</div><span>Available with or without enrollment</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem;justify-content:center;">
+        <div style="background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:.5rem 1rem;font-size:.75rem;color:var(--muted);">👥 Users/Groups</div>
+        <div style="color:var(--muted);">→</div>
+        <div style="background:var(--s3);border:1px solid var(--teal);border-radius:8px;padding:.5rem 1rem;font-size:.75rem;color:var(--teal);font-weight:700;">📦 App</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">7.</span>
+      <span class="card-title" style="color:var(--sky);">Installation Process</span>
+    </div>
+    <div class="card-body">
+      <div class="vflow">
+        <div class="vflow-item"><span class="vflow-icon">📋</span><span class="vflow-label">Device checks assignment</span></div>
+        <div class="vflow-arrow">↓</div>
+        <div class="vflow-item"><span class="vflow-icon">⬇️</span><span class="vflow-label">Downloads the Win32 package</span></div>
+        <div class="vflow-arrow">↓</div>
+        <div class="vflow-item"><span class="vflow-icon">▶️</span><span class="vflow-label">Runs install command</span></div>
+        <div class="vflow-arrow">↓</div>
+        <div class="vflow-item"><span class="vflow-icon">🔍</span><span class="vflow-label">Detection rule verifies installation</span></div>
+        <div class="vflow-arrow">↓</div>
+        <div class="vflow-item" style="border-color:var(--green);"><span class="vflow-icon">✅</span><span class="vflow-label" style="color:var(--green);">Installation completed</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 4: Monitoring + Error Codes + Best Practices -->
+<div class="layout three" style="max-width:1200px;margin:0 auto 1rem;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">8.</span>
+      <span class="card-title" style="color:var(--amber);">Monitoring & Reports</span>
+    </div>
+    <div class="card-body">
+      <div class="bullets">
+        <div class="bullet"><span class="dot">●</span><span>Go to: <strong style="color:var(--amber)">Apps &gt; Monitor &gt; Select the app</strong></span></div>
+        <div class="bullet"><span class="dot">●</span><span>You can check:</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.35rem;padding-left:.3rem;">
+        <div class="check-item"><span class="check-icon">☑</span><span>Installation status (Success/Failed/In Progress)</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Device install status</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>User install status</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Error codes and logs</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Uninstall status</span></div>
+      </div>
+      <div style="text-align:center;padding:.3rem 0;">
+        <span style="font-size:2rem;">📊</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">9.</span>
+      <span class="card-title" style="color:var(--red);">Common Error Codes</span>
+    </div>
+    <div class="card-body">
+      <div class="error-list">
+        <div class="error-item"><span class="error-code">0x87D00213</span><span class="error-desc">Installation failed</span></div>
+        <div class="error-item"><span class="error-code">0x87D00607</span><span class="error-desc">Download failed</span></div>
+        <div class="error-item"><span class="error-code">0x87D001F7</span><span class="error-desc">Not enough disk space</span></div>
+        <div class="error-item"><span class="error-code">0x87D00324</span><span class="error-desc">Dependency not met</span></div>
+        <div class="error-item"><span class="error-code">0x87D00215</span><span class="error-desc">App not applicable</span></div>
+      </div>
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;padding:.6rem .8rem;margin-top:.3rem;">
+        <div style="font-size:.67rem;font-weight:700;color:var(--amber);margin-bottom:.35rem;">📁 Check Logs In:</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);line-height:1.6;">
+          Device → <span style="color:var(--cyan);">C:\ProgramData\Microsoft\<br>IntuneManagementExtension\Logs</span><br>
+          Portal → Monitor → Audit logs<br>/ Device install status
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">10.</span>
+      <span class="card-title" style="color:var(--green);">Best Practices</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:.4rem;">
+        <div class="check-item"><span class="check-icon">☑</span><span>Use proper install/uninstall commands.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Always configure detection rules.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Test the app on pilot devices first.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Use meaningful app name &amp; version.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Handle dependencies properly.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Monitor installation and logs regularly.</span></div>
+        <div class="check-item"><span class="check-icon">☑</span><span>Keep apps updated and republish.</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 5: Summary Flow -->
+<div style="max-width:1200px;margin:0 auto 1rem;">
+  <div class="card">
+    <div class="card-head">
+      <span class="sec-num">11.</span>
+      <span class="card-title" style="color:var(--blue);">Win32 App Deployment Summary</span>
+    </div>
+    <div class="card-body">
+      <div class="flow" style="justify-content:space-between;">
+        <div class="flow-step"><div class="ficon">📂</div><div class="flabel">Prepare App Files</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">🔧</div><div class="flabel">Package with IntuneWinAppUtil</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">☁️</div><div class="flabel">Upload .intunewin to Intune</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">🪟</div><div class="flabel">Create Win32 App</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">👥</div><div class="flabel">Assign to Users/Devices</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="ficon">✅</div><div class="flabel">App Installs on Devices</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:var(--green);"><div class="ficon">📊</div><div class="flabel" style="color:var(--green);">Monitor & Ensure Success</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remember Banner -->
+<div class="banner">
+  <span class="banner-icon">⭐</span>
+  <div class="banner-text">
+    <strong>Remember:</strong> Proper packaging, detection rules, and monitoring are key to successful Win32 app deployment in Intune.
+  </div>
+</div>
+
+<script>
+function cp(btn){
+  const pre = btn.closest('pre');
+  const raw = pre.dataset.raw || pre.innerText.replace('copy','').replace('✓ copied!','').trim();
+  navigator.clipboard.writeText(raw).then(()=>{
+    btn.textContent='✓ copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');},1700);
+  });
+}
+</script>
+</body>
+</html>
